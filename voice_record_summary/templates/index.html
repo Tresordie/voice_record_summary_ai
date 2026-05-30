@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>语音录制 & 总结工具</title>
+<style>
+  :root {
+    --bg: #0f0f14;
+    --card: #1a1a24;
+    --border: #2a2a3a;
+    --text: #e0e0e0;
+    --muted: #888;
+    --accent: #6366f1;
+    --accent2: #22c55e;
+    --danger: #ef4444;
+    --radius: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 720px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .header {
+    text-align: center;
+    padding: 10px 0;
+  }
+  .header h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  .header p {
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-top: 4px;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+  }
+
+  /* ---- Mode Toggle ---- */
+  .mode-toggle {
+    display: flex;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    width: fit-content;
+    margin: 0 auto;
+  }
+  .mode-toggle button {
+    padding: 8px 24px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+  }
+  .mode-toggle button.active {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  /* ---- Record area ---- */
+  .record-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .record-btn {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 4px solid var(--border);
+    background: var(--card);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+  }
+  .record-btn:hover {
+    border-color: var(--accent);
+    transform: scale(1.05);
+  }
+  .record-btn.recording {
+    border-color: var(--danger);
+    background: #ef444410;
+    animation: pulse 1.8s ease-in-out infinite;
+  }
+  .record-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+    50% { box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); }
+  }
+
+  .record-btn svg {
+    width: 40px;
+    height: 40px;
+    fill: none;
+    stroke: var(--text);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .record-btn.recording svg {
+    fill: var(--danger);
+    stroke: var(--danger);
+  }
+
+  .timer {
+    font-size: 2rem;
+    font-weight: 300;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+    min-height: 48px;
+    line-height: 48px;
+  }
+  .timer.recording { color: var(--danger); }
+
+  .status {
+    font-size: 0.9rem;
+    color: var(--muted);
+    min-height: 24px;
+  }
+
+  /* ---- Settings ---- */
+  .settings {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 8px;
+  }
+  .settings label {
+    font-size: 0.8rem;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .settings select, .settings input {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    outline: none;
+  }
+  .settings select:focus, .settings input:focus {
+    border-color: var(--accent);
+  }
+
+  /* ---- Online config ---- */
+  .online-config {
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+  .online-config.visible { display: flex; }
+
+  .config-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .config-row label {
+    font-size: 0.8rem;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .config-row input {
+    flex: 1;
+    min-width: 160px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    padding: 6px 10px;
+    font-size: 0.8rem;
+    outline: none;
+  }
+  .config-row input:focus {
+    border-color: var(--accent);
+  }
+  .config-row input[type="password"] {
+    font-family: monospace;
+  }
+
+  .config-row select {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    padding: 6px 8px;
+    font-size: 0.8rem;
+    outline: none;
+  }
+
+  /* ---- Result cards ---- */
+  .result-section {
+    margin-top: 8px;
+  }
+  .result-section h3 {
+    font-size: 0.85rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+  .result-text {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    font-size: 0.9rem;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  .result-text:empty::after {
+    content: "（等待识别结果...）";
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  .copy-btn {
+    margin-top: 8px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--muted);
+    padding: 6px 14px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.15s;
+  }
+  .copy-btn:hover {
+    border-color: var(--accent);
+    color: var(--text);
+  }
+
+  /* ---- History ---- */
+  .history-item {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .history-item:hover { background: #ffffff05; }
+  .history-item:last-child { border-bottom: none; }
+  .history-item .time {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .history-item .preview {
+    font-size: 0.85rem;
+    color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+  }
+  .history-item .del-btn {
+    opacity: 0;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--danger);
+    cursor: pointer;
+    padding: 2px 8px;
+    font-size: 0.75rem;
+    transition: opacity 0.15s;
+    flex-shrink: 0;
+  }
+  .history-item:hover .del-btn { opacity: 1; }
+  .history-item .del-btn:hover {
+    background: var(--danger);
+    color: #fff;
+    border-color: var(--danger);
+  }
+
+  .empty-state {
+    text-align: center;
+    color: var(--muted);
+    padding: 40px 0;
+    font-size: 0.9rem;
+  }
+
+  .spinner {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  audio {
+    width: 100%;
+    height: 36px;
+    margin-top: 8px;
+    border-radius: 8px;
+  }
+
+  /* ---- Provider presets ---- */
+  .provider-chips {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .provider-chip {
+    padding: 4px 14px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 0.78rem;
+    transition: all 0.2s;
+  }
+  .provider-chip:hover { border-color: var(--accent); color: var(--text); }
+  .provider-chip.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  /* ---- Config section ---- */
+  .config-section {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+  }
+  .config-section .section-title {
+    font-size: 0.78rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  /* ---- Test button ---- */
+  .test-btn {
+    padding: 4px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 0.72rem;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .test-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+  .test-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .test-btn.success { border-color: var(--accent2); color: var(--accent2); }
+  .test-btn.fail { border-color: var(--danger); color: var(--danger); }
+  .test-msg {
+    font-size: 0.72rem;
+    margin-left: 8px;
+  }
+  .test-msg.ok { color: var(--accent2); }
+  .test-msg.err { color: var(--danger); }
+
+  /* ---- File upload ---- */
+  .upload-area {
+    border: 2px dashed var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 8px;
+  }
+  .upload-area:hover, .upload-area.dragover {
+    border-color: var(--accent);
+    background: #6366f108;
+  }
+  .upload-area input[type="file"] { display: none; }
+  .upload-icon { font-size: 1.2rem; margin-bottom: 2px; }
+  .upload-text { font-size: 0.8rem; color: var(--muted); }
+  .upload-formats { font-size: 0.68rem; color: #555; margin-top: 2px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>语音录制 & 总结</h1>
+    <p>录音 → 语音识别 → 自动总结</p>
+  </div>
+
+  <div class="card">
+    <div class="record-area">
+      <button class="record-btn" id="recordBtn" title="开始录音">
+        <svg viewBox="0 0 24 24">
+          <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+          <line x1="12" y1="19" x2="12" y2="23"/>
+          <line x1="8" y1="23" x2="16" y2="23"/>
+        </svg>
+      </button>
+      <div class="timer" id="timer">00:00</div>
+      <div class="status" id="status">准备就绪，点击麦克风开始录音</div>
+    </div>
+
+    <!-- File upload area -->
+    <div class="upload-area" id="uploadArea">
+      <div class="upload-icon">+</div>
+      <div class="upload-text">或拖放音频文件到此处</div>
+      <div class="upload-formats">支持 WAV / WebM / MP3 / M4A / OGG / FLAC / MP4</div>
+      <input type="file" id="fileInput" accept="audio/*,.wav,.webm,.mp3,.m4a,.ogg,.flac,.mp4">
+    </div>
+
+    <!-- Mode toggle -->
+    <div class="mode-toggle" style="margin-bottom:12px;">
+      <button id="btnLocal" class="active">本地</button>
+      <button id="btnHybrid">混合</button>
+      <button id="btnOnline">在线</button>
+    </div>
+
+    <!-- Local settings -->
+    <div class="settings" id="localSettings">
+      <label>语言
+        <select id="language">
+          <option value="zh">中文</option>
+          <option value="en">English</option>
+          <option value="auto">自动检测</option>
+        </select>
+      </label>
+      <label>模型路径
+        <input type="text" id="model" value="base" placeholder="base 或 iic/SenseVoiceSmall 或 /path/"
+               list="modelSuggestions" style="width:220px;">
+        <datalist id="modelSuggestions">
+          <option value="tiny"><option value="base"><option value="small">
+          <option value="medium"><option value="large-v3"><option value="turbo">
+          <option value="iic/SenseVoiceSmall">
+        </datalist>
+      </label>
+    </div>
+
+    <!-- Online settings -->
+    <div class="settings" id="onlineSettings" style="display:none;">
+      <label>语言
+        <select id="langOnline">
+          <option value="zh">中文</option>
+          <option value="en">English</option>
+          <option value="auto">自动检测</option>
+        </select>
+      </label>
+    </div>
+
+    <!-- Online API config -->
+    <div class="online-config" id="onlineConfig">
+
+      <!-- Provider presets -->
+      <div class="provider-chips">
+        <span style="font-size:0.78rem;color:var(--muted);line-height:28px;">预设:</span>
+        <button class="provider-chip active" data-provider="openai">OpenAI</button>
+        <button class="provider-chip" data-provider="deepseek">DeepSeek</button>
+        <button class="provider-chip" data-provider="alibaba">阿里云</button>
+        <button class="provider-chip" data-provider="custom">自定义</button>
+      </div>
+
+      <!-- STT Config -->
+      <div class="config-section">
+        <div class="section-title">
+          语音识别 (STT)
+          <span>
+            <span class="test-msg" id="sttTestMsg"></span>
+            <button class="test-btn" id="sttTestBtn">测试连接</button>
+          </span>
+        </div>
+        <div class="config-row">
+          <label>Key</label>
+          <input type="password" id="apiKeyStt" placeholder="留空则使用本地 Whisper" autocomplete="off">
+        </div>
+        <div class="config-row">
+          <label>Base</label>
+          <input type="text" id="apiBaseStt" placeholder="https://api.openai.com/v1">
+        </div>
+        <div class="config-row">
+          <label>在线模型</label>
+          <input type="text" id="sttModel" value="whisper-1" placeholder="whisper-1"
+                 list="sttSuggestions">
+          <datalist id="sttSuggestions">
+            <option value="whisper-1">
+            <option value="gpt-4o-transcribe">
+            <option value="gpt-4o-mini-transcribe">
+            <option value="fun-asr-realtime">
+            <option value="paraformer-realtime-v2">
+          </datalist>
+        </div>
+        <div style="font-size:0.72rem;color:var(--muted);padding-top:8px;border-top:1px solid var(--border);margin-top:4px;">
+          Key 为空时自动使用左侧「本地/混合」引擎设置
+        </div>
+      </div>
+
+      <!-- Summary Config -->
+      <div class="config-section">
+        <div class="section-title">
+          文本总结 (Chat)
+          <span>
+            <span class="test-msg" id="summaryTestMsg"></span>
+            <button class="test-btn" id="summaryTestBtn">测试连接</button>
+          </span>
+        </div>
+        <div class="config-row">
+          <label>Key</label>
+          <input type="password" id="apiKeySummary" placeholder="sk-..." autocomplete="off">
+        </div>
+        <div class="config-row">
+          <label>Base</label>
+          <input type="text" id="apiBaseSummary" placeholder="https://api.deepseek.com/v1">
+        </div>
+        <div class="config-row">
+          <label>模型</label>
+          <input type="text" id="summaryModel" value="deepseek-chat" placeholder="deepseek-chat"
+                 list="summarySuggestions">
+          <datalist id="summarySuggestions">
+            <option value="gpt-4o-mini">
+            <option value="gpt-4o">
+            <option value="gpt-3.5-turbo">
+            <option value="deepseek-chat">
+            <option value="deepseek-reasoner">
+            <option value="qwen-plus">
+            <option value="qwen-max">
+            <option value="claude-sonnet-4-7">
+          </datalist>
+        </div>
+      </div>
+    </div>
+
+    <audio id="audioPlayback" controls style="display:none"></audio>
+  </div>
+
+  <div class="card" id="resultCard" style="display:none">
+    <div class="result-section">
+      <h3>识别文本</h3>
+      <div class="result-text" id="transcriptText"></div>
+      <button class="copy-btn" data-target="transcriptText">复制文本</button>
+    </div>
+    <div class="result-section" style="margin-top: 20px;">
+      <h3>总结</h3>
+      <div class="result-text" id="summaryText"></div>
+      <button class="copy-btn" data-target="summaryText">复制总结</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <h3 style="font-size:0.85rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin:0;">历史记录</h3>
+      <button class="test-btn" id="clearAllBtn" style="font-size:0.72rem;">清空全部</button>
+    </div>
+    <div id="historyList">
+      <div class="empty-state">暂无记录</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ---- DOM refs ----
+const recordBtn = document.getElementById('recordBtn');
+const timerEl = document.getElementById('timer');
+const statusEl = document.getElementById('status');
+const transcriptEl = document.getElementById('transcriptText');
+const summaryEl = document.getElementById('summaryText');
+const resultCard = document.getElementById('resultCard');
+const audioPlayback = document.getElementById('audioPlayback');
+const historyList = document.getElementById('historyList');
+
+const btnLocal = document.getElementById('btnLocal');
+const btnHybrid = document.getElementById('btnHybrid');
+const btnOnline = document.getElementById('btnOnline');
+const localSettings = document.getElementById('localSettings');
+const onlineSettings = document.getElementById('onlineSettings');
+const onlineConfig = document.getElementById('onlineConfig');
+
+// Inputs
+const el = (id) => document.getElementById(id);
+
+// ---- State ----
+let mode = 'local';
+let mediaRecorder = null;
+let audioChunks = [];
+let timerInterval = null;
+let startTime = 0;
+let currentProvider = 'openai';
+
+// ---- Provider presets ----
+const PROVIDERS = {
+  openai: {
+    apiBaseStt: 'https://api.openai.com/v1',
+    apiBaseSummary: 'https://api.openai.com/v1',
+    sttModel: 'whisper-1',
+    summaryModel: 'gpt-4o-mini',
+  },
+  deepseek: {
+    apiBaseStt: '',
+    apiBaseSummary: 'https://api.deepseek.com/v1',
+    sttModel: '',
+    summaryModel: 'deepseek-chat',
+  },
+  alibaba: {
+    apiBaseStt: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+    apiBaseSummary: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+    sttModel: 'fun-asr-realtime',
+    summaryModel: 'qwen-plus',
+  },
+  custom: {
+    apiBaseStt: '',
+    apiBaseSummary: '',
+    sttModel: '',
+    summaryModel: '',
+  },
+};
+
+function applyProvider(provider) {
+  currentProvider = provider;
+  const p = PROVIDERS[provider];
+  if (p.apiBaseStt !== undefined) el('apiBaseStt').value = p.apiBaseStt;
+  if (p.apiBaseSummary !== undefined) el('apiBaseSummary').value = p.apiBaseSummary;
+  if (p.sttModel !== undefined) el('sttModel').value = p.sttModel;
+  if (p.summaryModel !== undefined) el('summaryModel').value = p.summaryModel;
+  document.querySelectorAll('.provider-chip').forEach(c => c.classList.remove('active'));
+  document.querySelector(`[data-provider="${provider}"]`).classList.add('active');
+  saveSettings();
+}
+
+document.querySelectorAll('.provider-chip').forEach(chip => {
+  chip.addEventListener('click', () => applyProvider(chip.dataset.provider));
+});
+
+// ---- Settings persistence ----
+const STORAGE_KEY = 'voice_tool_settings';
+
+function saveSettings() {
+  const data = {
+    mode,
+    currentProvider,
+    language: el('language').value,
+    langOnline: el('langOnline').value,
+    model: el('model').value,
+    apiKeyStt: el('apiKeyStt').value,
+    apiBaseStt: el('apiBaseStt').value,
+    sttModel: el('sttModel').value,
+    apiKeySummary: el('apiKeySummary').value,
+    apiBaseSummary: el('apiBaseSummary').value,
+    summaryModel: el('summaryModel').value,
+  };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function loadSettings() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    if (data.mode) setMode(data.mode);
+    if (data.currentProvider) applyProvider(data.currentProvider);
+    if (data.language) el('language').value = data.language;
+    if (data.langOnline) el('langOnline').value = data.langOnline;
+    if (data.model) el('model').value = data.model;
+    if (data.apiKeyStt) el('apiKeyStt').value = data.apiKeyStt;
+    if (data.apiBaseStt) el('apiBaseStt').value = data.apiBaseStt;
+    if (data.sttModel) el('sttModel').value = data.sttModel;
+    if (data.apiKeySummary) el('apiKeySummary').value = data.apiKeySummary;
+    if (data.apiBaseSummary) el('apiBaseSummary').value = data.apiBaseSummary;
+    if (data.summaryModel) el('summaryModel').value = data.summaryModel;
+  } catch (e) { /* ignore */ }
+}
+
+// Auto-save on change
+document.querySelectorAll('input, select').forEach(el => {
+  el.addEventListener('change', saveSettings);
+  el.addEventListener('input', saveSettings);
+});
+
+// ---- Mode switching ----
+function setMode(newMode) {
+  mode = newMode;
+  [btnLocal, btnHybrid, btnOnline].forEach(b => b.classList.remove('active'));
+
+  if (mode === 'local') {
+    btnLocal.classList.add('active');
+    localSettings.style.display = 'flex';
+    onlineSettings.style.display = 'none';
+    onlineConfig.classList.remove('visible');
+  } else if (mode === 'hybrid') {
+    btnHybrid.classList.add('active');
+    localSettings.style.display = 'flex';
+    onlineSettings.style.display = 'none';
+    onlineConfig.classList.add('visible');
+  } else {
+    btnOnline.classList.add('active');
+    localSettings.style.display = 'none';
+    onlineSettings.style.display = 'flex';
+    onlineConfig.classList.add('visible');
+  }
+  saveSettings();
+}
+
+btnLocal.addEventListener('click', () => setMode('local'));
+btnHybrid.addEventListener('click', () => setMode('hybrid'));
+btnOnline.addEventListener('click', () => setMode('online'));
+
+// ---- Recording ----
+function formatTime(seconds) {
+  const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+  const s = Math.floor(seconds % 60).toString().padStart(2, '0');
+  return `${m}:${s}`;
+}
+
+async function startRecording() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+      ? 'audio/webm;codecs=opus' : 'audio/webm';
+
+    mediaRecorder = new MediaRecorder(stream, { mimeType });
+    audioChunks = [];
+
+    mediaRecorder.ondataavailable = (e) => {
+      if (e.data.size > 0) audioChunks.push(e.data);
+    };
+
+    mediaRecorder.onstop = () => {
+      stream.getTracks().forEach(t => t.stop());
+      const blob = new Blob(audioChunks, { type: mimeType });
+      audioPlayback.src = URL.createObjectURL(blob);
+      audioPlayback.style.display = 'block';
+      transcribeAudio(blob);
+    };
+
+    mediaRecorder.start();
+    startTime = Date.now();
+    timerInterval = setInterval(() => {
+      timerEl.textContent = formatTime((Date.now() - startTime) / 1000);
+    }, 200);
+
+    recordBtn.classList.add('recording');
+    timerEl.classList.add('recording');
+    statusEl.textContent = '正在录音... 再次点击停止';
+  } catch (err) {
+    statusEl.textContent = '无法访问麦克风: ' + err.message;
+  }
+}
+
+function stopRecording() {
+  if (!mediaRecorder || mediaRecorder.state === 'inactive') return;
+
+  mediaRecorder.stop();
+  clearInterval(timerInterval);
+  recordBtn.classList.remove('recording');
+  timerEl.classList.remove('recording');
+  statusEl.innerHTML = '<span class="spinner"></span>正在进行语音识别...';
+  recordBtn.disabled = true;
+}
+
+recordBtn.addEventListener('click', () => {
+  if (mediaRecorder && mediaRecorder.state === 'recording') {
+    stopRecording();
+  } else {
+    startRecording();
+  }
+});
+
+// ---- File upload ----
+const uploadArea = el('uploadArea');
+const fileInput = el('fileInput');
+
+function handleFile(file) {
+  if (!file) return;
+  console.log('[Upload] File:', file.name, file.size, file.type);
+  statusEl.innerHTML = '<span class="spinner"></span>正在处理文件...';
+  recordBtn.disabled = true;
+  audioPlayback.src = URL.createObjectURL(file);
+  audioPlayback.style.display = 'block';
+  transcribeAudio(file);
+}
+
+uploadArea.addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', () => handleFile(fileInput.files[0]));
+
+uploadArea.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  uploadArea.classList.add('dragover');
+});
+uploadArea.addEventListener('dragleave', () => {
+  uploadArea.classList.remove('dragover');
+});
+uploadArea.addEventListener('drop', (e) => {
+  e.preventDefault();
+  uploadArea.classList.remove('dragover');
+  handleFile(e.dataTransfer.files[0]);
+});
+
+// ---- API call ----
+async function transcribeAudio(blob) {
+  const formData = new FormData();
+  // Use original name for uploaded files, default for recordings
+  const filename = blob.name || 'recording.webm';
+  formData.append('audio', blob, filename);
+  formData.append('mode', mode);
+
+  // STT params
+  if (mode === 'online') {
+    formData.append('language', el('langOnline').value);
+    formData.append('api_key_stt', el('apiKeyStt').value);
+    formData.append('api_base_stt', el('apiBaseStt').value);
+    formData.append('stt_model', el('sttModel').value);
+    // Send model path for local fallback (auto-detect engine)
+    formData.append('model', el('model').value);
+  } else {
+    // local / hybrid: use auto-detected local engine
+    formData.append('language', el('language').value);
+    formData.append('model', el('model').value);
+  }
+
+  // Summary params
+  if (mode === 'online' || mode === 'hybrid') {
+    formData.append('api_key_summary', el('apiKeySummary').value);
+    formData.append('api_base_summary', el('apiBaseSummary').value);
+    formData.append('summary_model', el('summaryModel').value);
+  }
+
+  try {
+    const resp = await fetch('/api/transcribe', { method: 'POST', body: formData });
+    const data = await resp.json();
+
+    if (data.error) {
+      statusEl.textContent = '错误: ' + data.error;
+      recordBtn.disabled = false;
+      return;
+    }
+
+    let statusMsg = '完成！';
+    if (data.stt_error) {
+      statusMsg += ' (在线识别失败，已回退本地: ' + data.stt_error + ')';
+    } else if (data.stt_engine === 'online') {
+      statusMsg += ' (在线识别)';
+    }
+    transcriptEl.textContent = data.transcript || '（未识别到语音内容）';
+    summaryEl.textContent = data.summary || '（无法生成总结）';
+    resultCard.style.display = 'block';
+    statusEl.textContent = statusMsg;
+    recordBtn.disabled = false;
+    fileInput.value = '';
+    loadHistory();
+  } catch (err) {
+    statusEl.textContent = '请求失败: ' + err.message;
+    recordBtn.disabled = false;
+  }
+}
+
+// ---- Test connection ----
+async function testConnection(type) {
+  const btnId = type === 'stt' ? 'sttTestBtn' : 'summaryTestBtn';
+  const msgId = type === 'stt' ? 'sttTestMsg' : 'summaryTestMsg';
+  const btn = el(btnId);
+  const msg = el(msgId);
+
+  const apiKey = el(type === 'stt' ? 'apiKeyStt' : 'apiKeySummary').value;
+  const apiBase = el(type === 'stt' ? 'apiBaseStt' : 'apiBaseSummary').value;
+  const model = el(type === 'stt' ? 'sttModel' : 'summaryModel').value;
+
+  btn.disabled = true;
+  btn.textContent = '检测中...';
+  msg.textContent = '';
+  msg.className = 'test-msg';
+
+  try {
+    const resp = await fetch('/api/test-connection', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        api_key: apiKey,
+        api_base: apiBase,
+        type: type === 'stt' ? 'stt' : 'chat',
+        model: model,
+      }),
+    });
+    const data = await resp.json();
+
+    if (data.success) {
+      btn.classList.add('success');
+      btn.classList.remove('fail');
+      msg.textContent = data.message;
+      msg.className = 'test-msg ok';
+    } else {
+      btn.classList.add('fail');
+      btn.classList.remove('success');
+      msg.textContent = data.message;
+      msg.className = 'test-msg err';
+    }
+  } catch (err) {
+    btn.classList.add('fail');
+    btn.classList.remove('success');
+    msg.textContent = '网络错误';
+    msg.className = 'test-msg err';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '测试连接';
+    // Reset button style after 5s
+    setTimeout(() => {
+      btn.classList.remove('success', 'fail');
+      msg.textContent = '';
+    }, 5000);
+  }
+}
+
+el('sttTestBtn').addEventListener('click', () => testConnection('stt'));
+el('summaryTestBtn').addEventListener('click', () => testConnection('summary'));
+
+// ---- Copy buttons ----
+document.querySelectorAll('.copy-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = document.getElementById(btn.dataset.target);
+    navigator.clipboard.writeText(target.textContent).then(() => {
+      btn.textContent = '已复制!';
+      setTimeout(() => {
+        btn.textContent = btn.dataset.target === 'transcriptText' ? '复制文本' : '复制总结';
+      }, 1500);
+    });
+  });
+});
+
+// ---- History ----
+async function loadHistory() {
+  try {
+    const resp = await fetch('/api/history');
+    const items = await resp.json();
+
+    if (items.length === 0) {
+      historyList.innerHTML = '<div class="empty-state">暂无记录</div>';
+      return;
+    }
+
+    historyList.innerHTML = items.map(item => {
+      const displayTime = item.timestamp.replace(
+        /(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})/,
+        '$1-$2-$3 $4:$5:$6'
+      );
+      return `
+        <div class="history-item" data-timestamp="${item.timestamp}" style="display:flex;align-items:center;gap:10px;">
+          <div style="flex:1;min-width:0;cursor:pointer;">
+            <div class="time">${displayTime}</div>
+            <div class="preview">${escapeHtml(item.summary || item.transcript || '（空）')}</div>
+          </div>
+          <button class="del-btn" data-ts="${item.timestamp}">删除</button>
+        </div>`;
+    }).join('');
+
+    // Click to view
+    document.querySelectorAll('.history-item [style*="cursor:pointer"]').forEach(el => {
+      el.addEventListener('click', () => {
+        const ts = el.closest('.history-item').dataset.timestamp;
+        const found = items.find(i => i.timestamp === ts);
+        if (found) {
+          transcriptEl.textContent = found.transcript || '（未识别到语音内容）';
+          summaryEl.textContent = found.summary || '（无总结）';
+          resultCard.style.display = 'block';
+          resultCard.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+
+    // Delete single
+    document.querySelectorAll('.history-item .del-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const ts = btn.dataset.ts;
+        await fetch(`/api/history/${encodeURIComponent(ts)}`, { method: 'DELETE' });
+        loadHistory();
+      });
+    });
+  } catch (err) {
+    // silently ignore
+  }
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// ---- Clear all ----
+el('clearAllBtn').addEventListener('click', async () => {
+  if (!confirm('确认删除全部历史记录？此操作不可撤销。')) return;
+  await fetch('/api/history', { method: 'DELETE' });
+  transcriptEl.textContent = '';
+  summaryEl.textContent = '';
+  resultCard.style.display = 'none';
+  loadHistory();
+});
+
+// ---- Init ----
+loadSettings();
+setMode(mode);
+loadHistory();
+</script>
+</body>
+</html>

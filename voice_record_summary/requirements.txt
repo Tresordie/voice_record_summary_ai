@@ -1,0 +1,8 @@
+flask>=3.0
+openai-whisper
+funasr>=1.0
+openai>=1.0
+dashscope>=1.20
+jieba
+numpy
+torch
