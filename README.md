@@ -1,6 +1,3 @@
-# voice_record_summary_ai
-speaking, record and transcription
-
 # Voice Record Summary — 语音录制与总结工具
 
 浏览器端录音或上传音频文件 → 语音识别 → AI 大模型自动总结要点，一站式工具。
