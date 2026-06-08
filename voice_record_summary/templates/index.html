@@ -251,14 +251,39 @@
     line-height: 1.7;
     white-space: pre-wrap;
     word-break: break-word;
-    max-height: 300px;
+    max-height: 400px;
     overflow-y: auto;
+  }
+  .result-textarea {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: var(--text);
+    width: 100%;
+    min-height: 120px;
+    max-height: 400px;
+    resize: vertical;
+    font-family: inherit;
+    outline: none;
+    box-sizing: border-box;
+  }
+  .result-textarea:focus {
+    border-color: var(--accent);
   }
   .result-text:empty::after {
     content: "（等待识别结果...）";
     color: var(--muted);
     font-style: italic;
   }
+  .result-text.summary-md h2 { font-size: 1rem; color: var(--accent); margin: 12px 0 6px; }
+  .result-text.summary-md h3 { font-size: 0.9rem; color: var(--accent2); margin: 10px 0 4px; }
+  .result-text.summary-md ul { padding-left: 18px; margin: 4px 0; }
+  .result-text.summary-md li { margin: 2px 0; }
+  .result-text.summary-md strong { color: #f0c040; }
+  .result-text.summary-md p { margin: 4px 0; }
 
   .copy-btn {
     margin-top: 8px;
@@ -582,13 +607,21 @@
   <div class="card" id="resultCard" style="display:none">
     <div class="result-section">
       <h3>识别文本</h3>
-      <div class="result-text" id="transcriptText"></div>
-      <button class="copy-btn" data-target="transcriptText">复制文本</button>
+      <textarea class="result-textarea" id="transcriptText" placeholder="（等待识别结果...）"></textarea>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button class="copy-btn" data-target="transcriptText">复制文本</button>
+        <button class="copy-btn" id="reSummarizeBtn" style="border-color:var(--accent);color:var(--accent);">重新总结</button>
+      </div>
     </div>
     <div class="result-section" style="margin-top: 20px;">
-      <h3>总结</h3>
-      <div class="result-text" id="summaryText"></div>
-      <button class="copy-btn" data-target="summaryText">复制总结</button>
+      <h3>总结 <span style="font-size:0.7rem;color:var(--muted);font-weight:400;">(中英双语 · 可编辑)</span></h3>
+      <textarea class="result-textarea" id="summaryText" placeholder="（等待总结结果...）" style="min-height:200px;"></textarea>
+      <div class="result-text summary-md" id="summaryPreview" style="display:none;"></div>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button class="copy-btn" id="previewToggle">预览</button>
+        <button class="copy-btn" id="copySummaryBtn">复制总结</button>
+        <button class="copy-btn" id="saveSummaryBtn" style="border-color:var(--accent);color:var(--accent);">保存修改</button>
+      </div>
     </div>
   </div>
 
@@ -611,6 +644,7 @@ const timerEl = document.getElementById('timer');
 const statusEl = document.getElementById('status');
 const transcriptEl = document.getElementById('transcriptText');
 const summaryEl = document.getElementById('summaryText');
+const summaryPreview = document.getElementById('summaryPreview');
 const resultCard = document.getElementById('resultCard');
 const audioPlayback = document.getElementById('audioPlayback');
 const historyList = document.getElementById('historyList');
@@ -632,6 +666,8 @@ let audioChunks = [];
 let timerInterval = null;
 let startTime = 0;
 let currentProvider = 'openai';
+let currentTimestamp = null;
+let previewVisible = false;
 
 // ---- Provider presets ----
 const PROVIDERS = {
@@ -886,8 +922,10 @@ async function transcribeAudio(blob) {
     } else if (data.stt_engine === 'online') {
       statusMsg += ' (在线识别)';
     }
-    transcriptEl.textContent = data.transcript || '（未识别到语音内容）';
-    summaryEl.textContent = data.summary || '（无法生成总结）';
+    transcriptEl.value = data.transcript || '';
+    if (!data.transcript) transcriptEl.placeholder = '（未识别到语音内容）';
+    setSummaryContent(data.summary || '（无法生成总结）');
+    currentTimestamp = data.timestamp;
     resultCard.style.display = 'block';
     statusEl.textContent = statusMsg;
     recordBtn.disabled = false;
@@ -959,16 +997,128 @@ el('sttTestBtn').addEventListener('click', () => testConnection('stt'));
 el('summaryTestBtn').addEventListener('click', () => testConnection('summary'));
 
 // ---- Copy buttons ----
-document.querySelectorAll('.copy-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const target = document.getElementById(btn.dataset.target);
-    navigator.clipboard.writeText(target.textContent).then(() => {
-      btn.textContent = '已复制!';
-      setTimeout(() => {
-        btn.textContent = btn.dataset.target === 'transcriptText' ? '复制文本' : '复制总结';
-      }, 1500);
-    });
+el('copySummaryBtn').addEventListener('click', () => {
+  const text = previewVisible ? el('summaryPreview').textContent : el('summaryText').value;
+  if (!text.trim()) return;
+  navigator.clipboard.writeText(text).then(() => {
+    el('copySummaryBtn').textContent = '已复制!';
+    setTimeout(() => { el('copySummaryBtn').textContent = '复制总结'; }, 1500);
   });
+});
+
+// Copy transcript button
+document.querySelector('.copy-btn[data-target="transcriptText"]').addEventListener('click', () => {
+  const text = transcriptEl.value;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.copy-btn[data-target="transcriptText"]');
+    btn.textContent = '已复制!';
+    setTimeout(() => { btn.textContent = '复制文本'; }, 1500);
+  });
+});
+
+// ---- Preview toggle ----
+el('previewToggle').addEventListener('click', () => {
+  previewVisible = !previewVisible;
+  const ta = el('summaryText');
+  const preview = el('summaryPreview');
+  const toggle = el('previewToggle');
+  if (previewVisible) {
+    preview.innerHTML = renderMarkdown(ta.value);
+    ta.style.display = 'none';
+    preview.style.display = 'block';
+    toggle.textContent = '编辑';
+  } else {
+    preview.style.display = 'none';
+    ta.style.display = 'block';
+    toggle.textContent = '预览';
+  }
+});
+
+// ---- Save summary ----
+el('saveSummaryBtn').addEventListener('click', async () => {
+  if (!currentTimestamp) {
+    statusEl.textContent = '没有可保存的记录';
+    return;
+  }
+  const btn = el('saveSummaryBtn');
+  btn.disabled = true;
+  btn.textContent = '保存中...';
+  try {
+    const resp = await fetch('/api/save-summary', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        timestamp: currentTimestamp,
+        summary: el('summaryText').value,
+      }),
+    });
+    const data = await resp.json();
+    if (data.success) {
+      btn.textContent = '已保存';
+      btn.style.borderColor = 'var(--accent2)';
+      btn.style.color = 'var(--accent2)';
+      setTimeout(() => {
+        btn.textContent = '保存修改';
+        btn.style.borderColor = 'var(--accent)';
+        btn.style.color = 'var(--accent)';
+      }, 2000);
+    } else {
+      statusEl.textContent = '保存失败: ' + (data.error || '未知错误');
+      btn.textContent = '保存修改';
+    }
+  } catch (err) {
+    statusEl.textContent = '保存失败: ' + err.message;
+    btn.textContent = '保存修改';
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+// ---- Re-summarize ----
+el('reSummarizeBtn').addEventListener('click', async () => {
+  const text = transcriptEl.value.trim();
+  if (!text) {
+    statusEl.textContent = '请先输入文本再总结';
+    return;
+  }
+  const btn = el('reSummarizeBtn');
+  btn.disabled = true;
+  btn.textContent = '总结中...';
+  statusEl.innerHTML = '<span class="spinner"></span>正在重新生成总结...';
+
+  const payload = {
+    text: text,
+    mode: mode,
+  };
+  if (mode === 'online' || mode === 'hybrid') {
+    payload.api_key_summary = el('apiKeySummary').value;
+    payload.api_base_summary = el('apiBaseSummary').value;
+    payload.summary_model = el('summaryModel').value;
+  }
+
+  try {
+    const resp = await fetch('/api/summarize', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await resp.json();
+    if (data.error) {
+      statusEl.textContent = '总结失败: ' + data.error;
+    } else {
+      setSummaryContent(data.summary || '（无法生成总结）');
+      statusEl.textContent = '总结已更新';
+      // Highlight save button to remind user new summary is unsaved
+      const saveBtn = el('saveSummaryBtn');
+      saveBtn.style.borderColor = 'var(--accent2)';
+      saveBtn.style.color = 'var(--accent2)';
+    }
+  } catch (err) {
+    statusEl.textContent = '请求失败: ' + err.message;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '重新总结';
+  }
 });
 
 // ---- History ----
@@ -1003,8 +1153,9 @@ async function loadHistory() {
         const ts = el.closest('.history-item').dataset.timestamp;
         const found = items.find(i => i.timestamp === ts);
         if (found) {
-          transcriptEl.textContent = found.transcript || '（未识别到语音内容）';
-          summaryEl.textContent = found.summary || '（无总结）';
+          transcriptEl.value = found.transcript || '';
+          setSummaryContent(found.summary || '（无总结）');
+          currentTimestamp = ts;
           resultCard.style.display = 'block';
           resultCard.scrollIntoView({ behavior: 'smooth' });
         }
@@ -1031,12 +1182,37 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
+function renderMarkdown(text) {
+  let html = escapeHtml(text);
+  html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+  html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/^[*-] (.+)$/gm, '<li>$1</li>');
+  html = html.replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>');
+  html = html.replace(/<\/ul>\s*<ul>/gs, '');
+  return html;
+}
+
+function setSummaryContent(text) {
+  const ta = el('summaryText');
+  ta.value = text;
+  if (previewVisible) {
+    el('summaryPreview').innerHTML = renderMarkdown(text);
+  }
+}
+
 // ---- Clear all ----
 el('clearAllBtn').addEventListener('click', async () => {
   if (!confirm('确认删除全部历史记录？此操作不可撤销。')) return;
   await fetch('/api/history', { method: 'DELETE' });
-  transcriptEl.textContent = '';
-  summaryEl.textContent = '';
+  transcriptEl.value = '';
+  summaryEl.value = '';
+  summaryPreview.innerHTML = '';
+  summaryPreview.style.display = 'none';
+  summaryEl.style.display = 'block';
+  previewVisible = false;
+  el('previewToggle').textContent = '预览';
+  currentTimestamp = null;
   resultCard.style.display = 'none';
   loadHistory();
 });
