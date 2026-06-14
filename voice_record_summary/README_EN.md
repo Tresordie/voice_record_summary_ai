@@ -2,7 +2,7 @@
 
 A one-stop tool: record or upload audio in the browser → speech recognition → AI-powered structured summary.
 
-> **Current version: v1.2**
+> **Current version: v1.2** | [中文](README.md)
 
 ## Features
 
