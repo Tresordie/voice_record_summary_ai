@@ -220,7 +220,7 @@ def _jieba_tokenize(text):
     ]
 
 
-def summarize_local(text):
+def summarize_local(text, summary_type="会议总结"):
     sentences = split_sentences(text)
     if not sentences:
         return text
@@ -256,7 +256,7 @@ def summarize_local(text):
     # Extract keywords
     keywords = jieba.analyse.extract_tags(text, topK=6)
 
-    result = ["## 本地摘要", ""]
+    result = [f"## {summary_type}", ""]
     if keywords:
         result.append(f"**关键词:** {' | '.join(keywords)}")
         result.append("")
@@ -407,46 +407,182 @@ def transcribe_online(audio_path, api_key, api_base, model, language):
     return transcript.strip()
 
 
-def summarize_online(text, api_key, api_base, model):
+SUMMARY_PROMPTS = {
+    "会议总结": {
+        "system": (
+            "你是专业会议记录总结助手。你的任务是将语音识别的原始文本整理为结构化的详细会议纪要，"
+            "同时输出中文和英文两个版本。你需要通读全文，理解上下文，用自己的话重新组织内容，"
+            "而非直接摘抄原文。输入文本可能包含中英文混杂、口语化表达和语音识别错误，请根据上下文推断正确含义。"
+        ),
+        "prompt": (
+            "请将以下语音识别文本整理为详细的会议纪要，同时输出中文和英文两个版本。\n\n"
+            "## 中文摘要\n"
+            "### 会议主题\n"
+            "1-2句话概括本次讨论的核心主题和目的。\n\n"
+            "### 关键讨论\n"
+            "按话题分组，每个话题下列出讨论的具体内容和各方观点。每个话题2-4句话。\n\n"
+            "### 决策事项\n"
+            "列出本次会议中明确做出的决定，每条包含决定内容和相关背景。\n\n"
+            "### 待办事项\n"
+            "列出需要后续跟进的事项，尽量包含负责人和预期时间节点（如有提及）。\n\n"
+            "## English Summary\n"
+            "### Meeting Topic\n"
+            "Summarize the core topic and purpose in 1-2 sentences.\n\n"
+            "### Key Discussions\n"
+            "Group by topic, list specific content and viewpoints. 2-4 sentences per topic.\n\n"
+            "### Decisions\n"
+            "List decisions made, each with background context.\n\n"
+            "### Action Items\n"
+            "List follow-up items with owners and timelines if mentioned.\n\n"
+            "要求 / Requirements:\n"
+            "1. 中文版本和英文版本内容对应一致\n"
+            "2. 不要遗漏重要信息 / Do not omit important information\n"
+            "3. 去除口语填充词和重复冗余 / Remove filler words and redundancy\n"
+            "4. 专业术语和英文缩写保留原文 / Keep technical terms and abbreviations as-is\n"
+            "5. 如某个部分确实无内容，标注「（无）」/ (None)\n\n"
+            "原始文本 / Original text:\n{text}"
+        ),
+    },
+    "今日计划": {
+        "system": (
+            "你是专业的待办事项和计划整理助手。你的任务是从语音识别文本中提取所有计划、任务和安排，"
+            "整理成清晰的中文和英文待办清单。你需要通读全文，识别出明确的任务项、时间节点和优先级，"
+            "用自己的话重新组织，去除口语冗余。"
+        ),
+        "prompt": (
+            "请从以下文本中提取所有计划事项，整理为待办清单，输出中文和英文两个版本。\n\n"
+            "## 中文\n"
+            "### 今日计划\n"
+            "列出所有今日需要完成的任务，按优先级排序，标注预计时间（如有提及）。\n\n"
+            "### 近期安排\n"
+            "列出非今日但近期需要完成的事项，标注大致时间节点。\n\n"
+            "### 备注\n"
+            "其他需要注意的事项、想法或提醒。\n\n"
+            "## English\n"
+            "### Today's Plan\n"
+            "List today's tasks sorted by priority, with estimated time if mentioned.\n\n"
+            "### Upcoming\n"
+            "Near-future items with rough timeline.\n\n"
+            "### Notes\n"
+            "Other reminders or thoughts.\n\n"
+            "要求:\n"
+            "1. 每条任务简洁明确，包含行动要点\n"
+            "2. 如文本中未提及时间，不要编造\n"
+            "3. 去除口语填充词和重复冗余\n\n"
+            "原始文本:\n{text}"
+        ),
+    },
+    "学习笔记": {
+        "system": (
+            "你是专业的学习笔记整理助手。你的任务是从语音识别文本中提取知识点、概念和关键信息，"
+            "整理成结构化的学习笔记，同时输出中文和英文两个版本。你需要用自己的话重新组织内容，"
+            "理清逻辑关系，标注重点概念。"
+        ),
+        "prompt": (
+            "请将以下文本整理为结构化的学习笔记，输出中文和英文两个版本。\n\n"
+            "## 中文\n"
+            "### 主题\n"
+            "1-2句话概括学习内容的主题。\n\n"
+            "### 核心概念\n"
+            "列出文中涉及的核心概念和定义，每个概念简要解释。\n\n"
+            "### 要点归纳\n"
+            "按逻辑分组归纳主要知识点，保持层次结构。\n\n"
+            "### 待深入\n"
+            "列出文中提到但未详细展开、值得进一步学习的内容。\n\n"
+            "## English\n"
+            "### Topic\n"
+            "Summarize the learning topic in 1-2 sentences.\n\n"
+            "### Core Concepts\n"
+            "List key concepts with brief explanations.\n\n"
+            "### Key Points\n"
+            "Group and summarize main knowledge points with logical structure.\n\n"
+            "### Further Study\n"
+            "Topics mentioned but not elaborated that warrant deeper learning.\n\n"
+            "要求:\n"
+            "1. 概念解释准确，不要曲解原意\n"
+            "2. 用层级结构组织内容，便于复习\n"
+            "3. 专业术语保留原文并附中文解释\n\n"
+            "原始文本:\n{text}"
+        ),
+    },
+    "快速摘要": {
+        "system": (
+            "你是专业的文本摘要助手。你的任务是用简洁的语言概括语音识别文本的核心内容，"
+            "输出中文和英文两个版本的简短摘要，每个版本3-5句话，让读者快速了解全文要点。"
+        ),
+        "prompt": (
+            "请用简洁的语言概括以下文本的核心内容，输出中文和英文两个版本。\n\n"
+            "## 中文摘要\n"
+            "3-5句话概括全文核心内容，包含最重要的信息点。\n\n"
+            "## English Summary\n"
+            "3-5 sentences capturing the core content and most important points.\n\n"
+            "要求:\n"
+            "1. 每个版本控制在3-5句话\n"
+            "2. 只保留最重要的信息\n"
+            "3. 用自己的话重新组织，不要摘抄原文\n\n"
+            "原始文本:\n{text}"
+        ),
+    },
+    "待办事项": {
+        "system": (
+            "你是专业的任务管理助手。你的任务是从语音识别文本中精确提取所有待办事项和任务，"
+            "整理成中英文对照的清晰清单，不遗漏任何任务。"
+        ),
+        "prompt": (
+            "请从以下文本中提取所有待办事项，输出中文和英文对照清单。\n\n"
+            "## 待办事项 / Action Items\n"
+            "按优先级排列，每条格式：\n"
+            "- [ ] 任务描述 / Task description（负责人/person: XX，截止/due: XX）\n\n"
+            "## 备注 / Notes\n"
+            "补充说明或其他非任务类信息。\n\n"
+            "要求:\n"
+            "1. 每条任务包含: 行动描述、负责人(如有提及)、时间节点(如有提及)\n"
+            "2. 区分明确的任务和一般性讨论\n"
+            "3. 如文本中未提及负责人或时间，标注「未提及」/ N/A\n\n"
+            "原始文本:\n{text}"
+        ),
+    },
+}
+
+
+def _build_custom_prompt(summary_type):
+    """Build prompt template for a custom summary type not in predefined list."""
+    system = (
+        f"你是专业的「{summary_type}」整理助手。你的任务是将语音识别的原始文本按照"
+        f"「{summary_type}」的格式进行整理和总结，同时输出中文和英文两个版本。"
+        "你需要通读全文，理解上下文，用自己的话重新组织内容，"
+        "而非直接摘抄原文。输入文本可能包含中英文混杂、口语化表达和语音识别错误，请根据上下文推断正确含义。"
+    )
+    prompt = (
+        f"请将以下语音识别文本整理为「{summary_type}」格式的结构化内容，同时输出中文和英文两个版本。\n\n"
+        "## 中文\n"
+        "根据「{summary_type}」的格式要求，合理分段组织内容，确保信息完整、结构清晰。\n\n"
+        "## English\n"
+        "Corresponding English version with the same structure.\n\n"
+        "要求 / Requirements:\n"
+        "1. 中文版本和英文版本内容对应一致\n"
+        "2. 不要遗漏重要信息 / Do not omit important information\n"
+        "3. 去除口语填充词和重复冗余 / Remove filler words and redundancy\n"
+        "4. 专业术语和英文缩写保留原文 / Keep technical terms and abbreviations as-is\n\n"
+        "原始文本 / Original text:\n{{text}}"
+    ).replace("{summary_type}", summary_type)
+    return system, prompt
+
+
+def summarize_online(text, api_key, api_base, model, summary_type="会议总结"):
     """Use OpenAI-compatible Chat API for structured bilingual summarization."""
     from openai import OpenAI
 
     client = OpenAI(api_key=api_key, base_url=api_base or None)
 
-    system = (
-        "你是专业会议记录总结助手。你的任务是将语音识别的原始文本整理为结构化的详细会议纪要，"
-        "同时输出中文和英文两个版本。你需要通读全文，理解上下文，用自己的话重新组织内容，"
-        "而非直接摘抄原文。输入文本可能包含中英文混杂、口语化表达和语音识别错误，请根据上下文推断正确含义。"
-    )
+    if summary_type in SUMMARY_PROMPTS:
+        cfg = SUMMARY_PROMPTS[summary_type]
+        system = cfg["system"]
+        prompt = cfg["prompt"].format(text=text)
+    else:
+        system, prompt_template = _build_custom_prompt(summary_type)
+        prompt = prompt_template.format(text=text)
 
-    prompt = (
-        "请将以下语音识别文本整理为详细的会议纪要，同时输出中文和英文两个版本。\n\n"
-        "## 中文摘要\n"
-        "### 会议主题\n"
-        "1-2句话概括本次讨论的核心主题和目的。\n\n"
-        "### 关键讨论\n"
-        "按话题分组，每个话题下列出讨论的具体内容和各方观点。每个话题2-4句话。\n\n"
-        "### 决策事项\n"
-        "列出本次会议中明确做出的决定，每条包含决定内容和相关背景。\n\n"
-        "### 待办事项\n"
-        "列出需要后续跟进的事项，尽量包含负责人和预期时间节点（如有提及）。\n\n"
-        "## English Summary\n"
-        "### Meeting Topic\n"
-        "Summarize the core topic and purpose in 1-2 sentences.\n\n"
-        "### Key Discussions\n"
-        "Group by topic, list specific content and viewpoints. 2-4 sentences per topic.\n\n"
-        "### Decisions\n"
-        "List decisions made, each with background context.\n\n"
-        "### Action Items\n"
-        "List follow-up items with owners and timelines if mentioned.\n\n"
-        "要求 / Requirements:\n"
-        "1. 中文版本和英文版本内容对应一致\n"
-        "2. 不要遗漏重要信息 / Do not omit important information\n"
-        "3. 去除口语填充词和重复冗余 / Remove filler words and redundancy\n"
-        "4. 专业术语和英文缩写保留原文 / Keep technical terms and abbreviations as-is\n"
-        "5. 如某个部分确实无内容，标注「（无）」/ (None)\n\n"
-        f"原始文本 / Original text:\n{text}"
-    )
     resp = client.chat.completions.create(
         model=model or "gpt-3.5-turbo",
         messages=[
@@ -526,6 +662,7 @@ def transcribe():
         return jsonify({"error": f"语音识别失败: {str(e)}"}), 500
 
     # --- Summarization ---
+    summary_type = request.form.get("summary_type", "会议总结")
     summary = ""
     if transcript:
         try:
@@ -539,12 +676,12 @@ def transcribe():
                 summary_model = request.form.get("summary_model", "gpt-3.5-turbo")
                 if api_key:
                     summary = summarize_online(
-                        transcript, api_key, api_base, summary_model
+                        transcript, api_key, api_base, summary_model, summary_type
                     )
                 else:
-                    summary = summarize_local(transcript)
+                    summary = summarize_local(transcript, summary_type)
             else:
-                summary = summarize_local(transcript)
+                summary = summarize_local(transcript, summary_type)
         except Exception as e:
             summary = f"(总结生成失败: {e})"
 
@@ -576,17 +713,18 @@ def summarize_text():
         return jsonify({"error": "文本为空"}), 400
 
     mode = data.get("mode", "local")
+    summary_type = data.get("summary_type", "会议总结")
     try:
         if mode in ("online", "hybrid"):
             api_key = data.get("api_key_summary", "") or data.get("api_key", "")
             api_base = data.get("api_base_summary", "") or data.get("api_base", "")
             summary_model = data.get("summary_model", "gpt-3.5-turbo")
             if api_key:
-                summary = summarize_online(text, api_key, api_base, summary_model)
+                summary = summarize_online(text, api_key, api_base, summary_model, summary_type)
             else:
-                summary = summarize_local(text)
+                summary = summarize_local(text, summary_type)
         else:
-            summary = summarize_local(text)
+            summary = summarize_local(text, summary_type)
     except Exception as e:
         return jsonify({"error": f"总结生成失败: {e}"}), 500
 

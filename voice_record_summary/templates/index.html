@@ -6,27 +6,37 @@
 <title>语音录制 & 总结工具</title>
 <style>
   :root {
-    --bg: #0f0f14;
-    --card: #1a1a24;
-    --border: #2a2a3a;
-    --text: #e0e0e0;
-    --muted: #888;
-    --accent: #6366f1;
-    --accent2: #22c55e;
-    --danger: #ef4444;
-    --radius: 12px;
+    --bg: #05050d;
+    --card: rgba(12, 12, 32, 0.85);
+    --border: rgba(0, 212, 255, 0.12);
+    --border-hover: rgba(0, 212, 255, 0.35);
+    --text: #d8dee9;
+    --muted: #5a6880;
+    --accent: #00d4ff;
+    --accent-glow: rgba(0, 212, 255, 0.25);
+    --accent2: #00e676;
+    --accent2-glow: rgba(0, 230, 118, 0.25);
+    --purple: #a855f7;
+    --purple-glow: rgba(168, 85, 247, 0.25);
+    --danger: #ff3b5c;
+    --danger-glow: rgba(255, 59, 92, 0.3);
+    --radius: 14px;
+    --radius-sm: 8px;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    font-family: "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
     display: flex;
     justify-content: center;
     padding: 20px;
+    background-image:
+      radial-gradient(ellipse at 50% 0%, rgba(0, 212, 255, 0.04) 0%, transparent 60%),
+      radial-gradient(ellipse at 85% 100%, rgba(168, 85, 247, 0.03) 0%, transparent 50%);
   }
 
   .container {
@@ -34,53 +44,76 @@
     max-width: 720px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 18px;
   }
 
+  /* ---- Header ---- */
   .header {
     text-align: center;
-    padding: 10px 0;
+    padding: 18px 0 8px;
   }
   .header h1 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    letter-spacing: 0.02em;
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    background: linear-gradient(135deg, #00d4ff 0%, #a855f7 50%, #00e676 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
   .header p {
     color: var(--muted);
-    font-size: 0.85rem;
-    margin-top: 4px;
+    font-size: 0.82rem;
+    margin-top: 6px;
+    letter-spacing: 0.06em;
+    font-family: "SF Mono", "Fira Code", "Consolas", monospace;
   }
 
+  /* ---- Cards ---- */
   .card {
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     padding: 24px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.02);
+    transition: border-color 0.3s ease;
+  }
+  .card:hover {
+    border-color: rgba(0, 212, 255, 0.2);
   }
 
   /* ---- Mode Toggle ---- */
   .mode-toggle {
     display: flex;
-    background: var(--bg);
+    background: rgba(0, 0, 0, 0.4);
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: 10px;
     overflow: hidden;
     width: fit-content;
     margin: 0 auto;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
   }
   .mode-toggle button {
-    padding: 8px 24px;
+    padding: 9px 28px;
     border: none;
     background: transparent;
     color: var(--muted);
     cursor: pointer;
-    font-size: 0.85rem;
-    transition: all 0.2s;
+    font-size: 0.82rem;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    transition: all 0.25s ease;
+    position: relative;
   }
   .mode-toggle button.active {
-    background: var(--accent);
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(168, 85, 247, 0.15));
     color: #fff;
+    box-shadow: inset 0 0 20px rgba(0, 212, 255, 0.1);
+  }
+  .mode-toggle button:not(.active):hover {
+    color: #aaa;
   }
 
   /* ---- Record area ---- */
@@ -92,65 +125,141 @@
   }
 
   .record-btn {
-    width: 100px;
-    height: 100px;
+    width: 112px;
+    height: 112px;
     border-radius: 50%;
-    border: 4px solid var(--border);
-    background: var(--card);
+    border: 2px solid var(--border);
+    background: radial-gradient(circle at 50% 40%, rgba(0, 212, 255, 0.06) 0%, transparent 70%);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.25s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+  }
+  .record-btn::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
   }
   .record-btn:hover {
     border-color: var(--accent);
+    box-shadow: 0 0 30px var(--accent-glow), 0 0 60px rgba(0, 212, 255, 0.1);
     transform: scale(1.05);
+  }
+  .record-btn:hover::after {
+    border-color: rgba(0, 212, 255, 0.2);
   }
   .record-btn.recording {
     border-color: var(--danger);
-    background: #ef444410;
-    animation: pulse 1.8s ease-in-out infinite;
+    background: radial-gradient(circle at 50% 40%, rgba(255, 59, 92, 0.1) 0%, transparent 70%);
+    animation: pulse 1.6s ease-in-out infinite;
+    box-shadow: 0 0 30px var(--danger-glow), 0 0 60px rgba(255, 59, 92, 0.15);
   }
   .record-btn:disabled {
-    opacity: 0.5;
+    opacity: 0.4;
     cursor: not-allowed;
     transform: none;
+    box-shadow: none;
   }
 
   @keyframes pulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
-    50% { box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); }
+    0%, 100% { box-shadow: 0 0 20px var(--danger-glow), 0 0 40px rgba(255, 59, 92, 0.12); }
+    50% { box-shadow: 0 0 40px var(--danger-glow), 0 0 80px rgba(255, 59, 92, 0.25); }
   }
 
   .record-btn svg {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     fill: none;
     stroke: var(--text);
-    stroke-width: 2;
+    stroke-width: 1.8;
     stroke-linecap: round;
     stroke-linejoin: round;
+    transition: all 0.3s ease;
+  }
+  .record-btn:hover svg {
+    stroke: var(--accent);
   }
   .record-btn.recording svg {
     fill: var(--danger);
     stroke: var(--danger);
+    animation: iconPulse 0.8s ease-in-out infinite;
+  }
+  @keyframes iconPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
   }
 
   .timer {
-    font-size: 2rem;
-    font-weight: 300;
+    font-size: 2.2rem;
+    font-weight: 200;
     font-variant-numeric: tabular-nums;
     color: var(--text);
     min-height: 48px;
     line-height: 48px;
+    font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+    letter-spacing: 0.04em;
   }
-  .timer.recording { color: var(--danger); }
+  .timer.recording {
+    color: var(--danger);
+    text-shadow: 0 0 20px var(--danger-glow);
+  }
 
   .status {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: var(--muted);
     min-height: 24px;
+    letter-spacing: 0.02em;
+  }
+
+  /* ---- Summary type selector ---- */
+  .summary-type-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 14px;
+    padding: 14px 16px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+  }
+  .summary-type-row label {
+    font-size: 0.78rem;
+    color: var(--accent);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .summary-type-row select, .summary-type-row input {
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    padding: 7px 10px;
+    font-size: 0.82rem;
+    outline: none;
+    transition: all 0.25s ease;
+  }
+  .summary-type-row select:focus, .summary-type-row input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 12px var(--accent-glow);
+  }
+  .summary-type-row select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2300d4ff' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 28px;
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+  }
+  .summary-type-row select option {
+    background: #0d0d24;
+    color: var(--text);
   }
 
   /* ---- Settings ---- */
@@ -159,35 +268,38 @@
     gap: 12px;
     flex-wrap: wrap;
     justify-content: center;
-    margin-top: 8px;
+    margin-top: 10px;
   }
   .settings label {
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     color: var(--muted);
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 5px;
+    letter-spacing: 0.02em;
   }
   .settings select, .settings input {
-    background: var(--bg);
+    background: rgba(0, 0, 0, 0.35);
     border: 1px solid var(--border);
     border-radius: 6px;
     color: var(--text);
-    padding: 4px 8px;
+    padding: 5px 10px;
     font-size: 0.8rem;
     outline: none;
+    transition: all 0.25s ease;
   }
   .settings select:focus, .settings input:focus {
     border-color: var(--accent);
+    box-shadow: 0 0 10px var(--accent-glow);
   }
 
   /* ---- Online config ---- */
   .online-config {
     display: none;
     flex-direction: column;
-    gap: 10px;
-    margin-top: 12px;
-    padding-top: 12px;
+    gap: 12px;
+    margin-top: 14px;
+    padding-top: 14px;
     border-top: 1px solid var(--border);
   }
   .online-config.visible { display: flex; }
@@ -199,174 +311,60 @@
     flex-wrap: wrap;
   }
   .config-row label {
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     color: var(--muted);
     white-space: nowrap;
+    letter-spacing: 0.02em;
+    min-width: 36px;
   }
   .config-row input {
     flex: 1;
     min-width: 160px;
-    background: var(--bg);
+    background: rgba(0, 0, 0, 0.35);
     border: 1px solid var(--border);
     border-radius: 6px;
     color: var(--text);
-    padding: 6px 10px;
+    padding: 7px 10px;
     font-size: 0.8rem;
     outline: none;
+    transition: all 0.25s ease;
   }
   .config-row input:focus {
     border-color: var(--accent);
+    box-shadow: 0 0 12px var(--accent-glow);
   }
   .config-row input[type="password"] {
-    font-family: monospace;
+    font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+    letter-spacing: 0.08em;
   }
 
   .config-row select {
-    background: var(--bg);
+    background: rgba(0, 0, 0, 0.35);
     border: 1px solid var(--border);
     border-radius: 6px;
     color: var(--text);
-    padding: 6px 8px;
+    padding: 7px 10px;
     font-size: 0.8rem;
     outline: none;
   }
 
-  /* ---- Result cards ---- */
-  .result-section {
-    margin-top: 8px;
-  }
-  .result-section h3 {
-    font-size: 0.85rem;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 8px;
-  }
-  .result-text {
-    background: var(--bg);
+  /* ---- Config section ---- */
+  .config-section {
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     padding: 14px;
-    font-size: 0.9rem;
-    line-height: 1.7;
-    white-space: pre-wrap;
-    word-break: break-word;
-    max-height: 400px;
-    overflow-y: auto;
+    background: rgba(0, 0, 0, 0.15);
   }
-  .result-textarea {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 14px;
-    font-size: 0.9rem;
-    line-height: 1.7;
-    color: var(--text);
-    width: 100%;
-    min-height: 120px;
-    max-height: 400px;
-    resize: vertical;
-    font-family: inherit;
-    outline: none;
-    box-sizing: border-box;
-  }
-  .result-textarea:focus {
-    border-color: var(--accent);
-  }
-  .result-text:empty::after {
-    content: "（等待识别结果...）";
-    color: var(--muted);
-    font-style: italic;
-  }
-  .result-text.summary-md h2 { font-size: 1rem; color: var(--accent); margin: 12px 0 6px; }
-  .result-text.summary-md h3 { font-size: 0.9rem; color: var(--accent2); margin: 10px 0 4px; }
-  .result-text.summary-md ul { padding-left: 18px; margin: 4px 0; }
-  .result-text.summary-md li { margin: 2px 0; }
-  .result-text.summary-md strong { color: #f0c040; }
-  .result-text.summary-md p { margin: 4px 0; }
-
-  .copy-btn {
-    margin-top: 8px;
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    color: var(--muted);
-    padding: 6px 14px;
-    cursor: pointer;
-    font-size: 0.8rem;
-    transition: all 0.15s;
-  }
-  .copy-btn:hover {
-    border-color: var(--accent);
-    color: var(--text);
-  }
-
-  /* ---- History ---- */
-  .history-item {
-    padding: 12px 0;
-    border-bottom: 1px solid var(--border);
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-  .history-item:hover { background: #ffffff05; }
-  .history-item:last-child { border-bottom: none; }
-  .history-item .time {
-    font-size: 0.8rem;
-    color: var(--muted);
-    margin-bottom: 4px;
-  }
-  .history-item .preview {
-    font-size: 0.85rem;
-    color: var(--text);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    flex: 1;
-  }
-  .history-item .del-btn {
-    opacity: 0;
-    background: none;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    color: var(--danger);
-    cursor: pointer;
-    padding: 2px 8px;
+  .config-section .section-title {
     font-size: 0.75rem;
-    transition: opacity 0.15s;
-    flex-shrink: 0;
-  }
-  .history-item:hover .del-btn { opacity: 1; }
-  .history-item .del-btn:hover {
-    background: var(--danger);
-    color: #fff;
-    border-color: var(--danger);
-  }
-
-  .empty-state {
-    text-align: center;
-    color: var(--muted);
-    padding: 40px 0;
-    font-size: 0.9rem;
-  }
-
-  .spinner {
-    display: inline-block;
-    width: 18px;
-    height: 18px;
-    border: 2px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-    vertical-align: middle;
-    margin-right: 6px;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  audio {
-    width: 100%;
-    height: 36px;
-    margin-top: 8px;
-    border-radius: 8px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: 600;
   }
 
   /* ---- Provider presets ---- */
@@ -376,80 +374,256 @@
     flex-wrap: wrap;
   }
   .provider-chip {
-    padding: 4px 14px;
+    padding: 5px 16px;
     border: 1px solid var(--border);
     border-radius: 20px;
     background: transparent;
     color: var(--muted);
     cursor: pointer;
-    font-size: 0.78rem;
-    transition: all 0.2s;
+    font-size: 0.76rem;
+    transition: all 0.25s ease;
+    letter-spacing: 0.02em;
   }
-  .provider-chip:hover { border-color: var(--accent); color: var(--text); }
+  .provider-chip:hover {
+    border-color: var(--purple);
+    color: var(--purple);
+    box-shadow: 0 0 14px var(--purple-glow);
+  }
   .provider-chip.active {
-    background: var(--accent);
-    border-color: var(--accent);
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(0, 212, 255, 0.1));
+    border-color: var(--purple);
     color: #fff;
+    box-shadow: 0 0 16px var(--purple-glow);
   }
 
-  /* ---- Config section ---- */
-  .config-section {
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 12px;
+  /* ---- Result cards ---- */
+  .result-section {
+    margin-top: 6px;
   }
-  .config-section .section-title {
+  .result-section h3 {
     font-size: 0.78rem;
-    color: var(--muted);
+    color: var(--accent);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.08em;
     margin-bottom: 10px;
+    font-weight: 600;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: 8px;
+  }
+  .result-section h3::before {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 14px;
+    background: var(--accent);
+    border-radius: 2px;
+    box-shadow: 0 0 8px var(--accent-glow);
+  }
+  .result-text {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    font-size: 0.88rem;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+  .result-text::-webkit-scrollbar,
+  .result-textarea::-webkit-scrollbar {
+    width: 4px;
+  }
+  .result-text::-webkit-scrollbar-thumb,
+  .result-textarea::-webkit-scrollbar-thumb {
+    background: rgba(0, 212, 255, 0.2);
+    border-radius: 2px;
+  }
+  .result-textarea {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    font-size: 0.88rem;
+    line-height: 1.7;
+    color: var(--text);
+    width: 100%;
+    min-height: 120px;
+    max-height: 400px;
+    resize: vertical;
+    font-family: inherit;
+    outline: none;
+    box-sizing: border-box;
+    transition: all 0.25s ease;
+  }
+  .result-textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 16px var(--accent-glow);
+  }
+  .result-text:empty::after {
+    content: "等待识别结果...";
+    color: var(--muted);
+    font-style: italic;
+    opacity: 0.5;
+  }
+  .result-text.summary-md h2 { font-size: 0.95rem; color: var(--accent); margin: 14px 0 6px; }
+  .result-text.summary-md h3 { font-size: 0.85rem; color: var(--purple); margin: 10px 0 4px; }
+  .result-text.summary-md ul { padding-left: 16px; margin: 4px 0; }
+  .result-text.summary-md li { margin: 3px 0; color: #c0c8d8; }
+  .result-text.summary-md strong { color: #f0d060; }
+  .result-text.summary-md p { margin: 4px 0; }
+
+  .copy-btn {
+    margin-top: 8px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--muted);
+    padding: 7px 16px;
+    cursor: pointer;
+    font-size: 0.78rem;
+    letter-spacing: 0.03em;
+    transition: all 0.2s ease;
+  }
+  .copy-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    box-shadow: 0 0 14px var(--accent-glow);
   }
 
   /* ---- Test button ---- */
   .test-btn {
-    padding: 4px 12px;
+    padding: 5px 14px;
     border: 1px solid var(--border);
     border-radius: 6px;
     background: transparent;
     color: var(--muted);
     cursor: pointer;
-    font-size: 0.72rem;
-    transition: all 0.2s;
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    transition: all 0.2s ease;
     white-space: nowrap;
   }
-  .test-btn:hover { border-color: var(--accent2); color: var(--accent2); }
-  .test-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-  .test-btn.success { border-color: var(--accent2); color: var(--accent2); }
-  .test-btn.fail { border-color: var(--danger); color: var(--danger); }
+  .test-btn:hover { border-color: var(--accent2); color: var(--accent2); box-shadow: 0 0 10px var(--accent2-glow); }
+  .test-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .test-btn.success { border-color: var(--accent2); color: var(--accent2); box-shadow: 0 0 12px var(--accent2-glow); }
+  .test-btn.fail { border-color: var(--danger); color: var(--danger); box-shadow: 0 0 12px var(--danger-glow); }
   .test-msg {
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     margin-left: 8px;
+    letter-spacing: 0.02em;
   }
   .test-msg.ok { color: var(--accent2); }
   .test-msg.err { color: var(--danger); }
 
+  /* ---- History ---- */
+  .history-item {
+    padding: 14px 4px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-radius: 6px;
+  }
+  .history-item:hover {
+    background: rgba(0, 212, 255, 0.03);
+    padding-left: 10px;
+  }
+  .history-item:last-child { border-bottom: none; }
+  .history-item .time {
+    font-size: 0.75rem;
+    color: var(--accent);
+    margin-bottom: 4px;
+    font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+    letter-spacing: 0.03em;
+  }
+  .history-item .preview {
+    font-size: 0.84rem;
+    color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+  }
+  .history-item .del-btn {
+    opacity: 0;
+    background: none;
+    border: 1px solid rgba(255, 59, 92, 0.2);
+    border-radius: 4px;
+    color: var(--danger);
+    cursor: pointer;
+    padding: 3px 10px;
+    font-size: 0.72rem;
+    letter-spacing: 0.03em;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+  }
+  .history-item:hover .del-btn { opacity: 1; }
+  .history-item .del-btn:hover {
+    background: var(--danger);
+    color: #fff;
+    border-color: var(--danger);
+    box-shadow: 0 0 12px var(--danger-glow);
+  }
+
+  .empty-state {
+    text-align: center;
+    color: var(--muted);
+    padding: 40px 0;
+    font-size: 0.85rem;
+    opacity: 0.6;
+  }
+
+  .spinner {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(0, 212, 255, 0.15);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+    margin-right: 6px;
+    box-shadow: 0 0 8px var(--accent-glow);
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  audio {
+    width: 100%;
+    height: 36px;
+    margin-top: 10px;
+    border-radius: 8px;
+    opacity: 0.8;
+    transition: opacity 0.3s;
+  }
+  audio:hover { opacity: 1; }
+
   /* ---- File upload ---- */
   .upload-area {
     border: 2px dashed var(--border);
-    border-radius: 8px;
-    padding: 16px;
+    border-radius: 10px;
+    padding: 18px;
     text-align: center;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.3s ease;
     margin-top: 8px;
+    background: rgba(0, 0, 0, 0.15);
   }
   .upload-area:hover, .upload-area.dragover {
     border-color: var(--accent);
-    background: #6366f108;
+    background: rgba(0, 212, 255, 0.04);
+    box-shadow: 0 0 24px rgba(0, 212, 255, 0.08);
   }
   .upload-area input[type="file"] { display: none; }
-  .upload-icon { font-size: 1.2rem; margin-bottom: 2px; }
-  .upload-text { font-size: 0.8rem; color: var(--muted); }
-  .upload-formats { font-size: 0.68rem; color: #555; margin-top: 2px; }
+  .upload-icon {
+    font-size: 1.4rem;
+    margin-bottom: 2px;
+    color: var(--accent);
+    font-weight: 300;
+  }
+  .upload-text { font-size: 0.8rem; color: var(--muted); letter-spacing: 0.02em; }
+  .upload-formats { font-size: 0.66rem; color: #444; margin-top: 3px; letter-spacing: 0.02em; }
 </style>
 </head>
 <body>
@@ -487,6 +661,21 @@
       <button id="btnLocal" class="active">本地</button>
       <button id="btnHybrid">混合</button>
       <button id="btnOnline">在线</button>
+    </div>
+
+    <!-- Summary type selector -->
+    <div class="summary-type-row">
+      <label style="font-size:0.8rem;color:var(--muted);white-space:nowrap;">总结方式</label>
+      <select id="summaryType" style="flex:1;min-width:120px;">
+        <option value="会议总结">会议总结</option>
+        <option value="今日计划">今日计划</option>
+        <option value="学习笔记">学习笔记</option>
+        <option value="快速摘要">快速摘要</option>
+        <option value="待办事项">待办事项</option>
+        <option value="__custom__">自定义...</option>
+      </select>
+      <input type="text" id="summaryTypeCustom" placeholder="输入自定义总结方式"
+             style="flex:2;min-width:160px;display:none;">
     </div>
 
     <!-- Local settings -->
@@ -729,6 +918,8 @@ function saveSettings() {
     apiKeySummary: el('apiKeySummary').value,
     apiBaseSummary: el('apiBaseSummary').value,
     summaryModel: el('summaryModel').value,
+    summaryType: el('summaryType').value,
+    summaryTypeCustom: el('summaryTypeCustom').value,
   };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
@@ -749,6 +940,13 @@ function loadSettings() {
     if (data.apiKeySummary) el('apiKeySummary').value = data.apiKeySummary;
     if (data.apiBaseSummary) el('apiBaseSummary').value = data.apiBaseSummary;
     if (data.summaryModel) el('summaryModel').value = data.summaryModel;
+    if (data.summaryType) {
+      el('summaryType').value = data.summaryType;
+      if (data.summaryType === '__custom__') {
+        el('summaryTypeCustom').style.display = '';
+        if (data.summaryTypeCustom) el('summaryTypeCustom').value = data.summaryTypeCustom;
+      }
+    }
   } catch (e) { /* ignore */ }
 }
 
@@ -757,6 +955,24 @@ document.querySelectorAll('input, select').forEach(el => {
   el.addEventListener('change', saveSettings);
   el.addEventListener('input', saveSettings);
 });
+
+// ---- Summary type custom input ----
+function getSummaryType() {
+  const select = el('summaryType');
+  if (select.value === '__custom__') {
+    return el('summaryTypeCustom').value.trim() || '会议总结';
+  }
+  return select.value;
+}
+
+el('summaryType').addEventListener('change', () => {
+  const isCustom = el('summaryType').value === '__custom__';
+  el('summaryTypeCustom').style.display = isCustom ? '' : 'none';
+  if (isCustom) el('summaryTypeCustom').focus();
+  saveSettings();
+});
+
+el('summaryTypeCustom').addEventListener('input', saveSettings);
 
 // ---- Mode switching ----
 function setMode(newMode) {
@@ -900,6 +1116,7 @@ async function transcribeAudio(blob) {
   }
 
   // Summary params
+  formData.append('summary_type', getSummaryType());
   if (mode === 'online' || mode === 'hybrid') {
     formData.append('api_key_summary', el('apiKeySummary').value);
     formData.append('api_base_summary', el('apiBaseSummary').value);
@@ -1089,6 +1306,7 @@ el('reSummarizeBtn').addEventListener('click', async () => {
   const payload = {
     text: text,
     mode: mode,
+    summary_type: getSummaryType(),
   };
   if (mode === 'online' || mode === 'hybrid') {
     payload.api_key_summary = el('apiKeySummary').value;
