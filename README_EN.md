@@ -2,7 +2,7 @@
 
 A one-stop tool: record or upload audio in the browser → speech recognition → AI-powered structured summary.
 
-> **Current version: v1.2** | [中文](README.md)
+> **Current version: v1.3** | [中文](README.md)
 
 ## Features
 
@@ -97,6 +97,17 @@ Use the "Test Connection" button to verify your API Key and endpoint.
 | DELETE | `/api/history/<timestamp>` | Delete a single record |
 
 ## Changelog
+
+### v1.3 (2026-06-19)
+- Rewrote AI summarization prompts with three mandatory principles: faithfulness (no fabrication), ASR error correction, and topic-first reasoning
+- Optimized prompt structure to step-by-step execution (understand topic → extract key points → structured output), improving summary accuracy
+- Increased max_tokens from 3000 to 4096 to prevent bilingual output truncation for long transcripts
+- Lowered temperature from 0.3 to 0.1 for more consistent, faithful summaries with less hallucination
+- Fixed API key fallback bug: STT key no longer incorrectly used as Summary key
+- Fixed custom summary type string formatting crash when summary type contains special characters
+- Changed default summarization model from gpt-3.5-turbo to deepseek-chat
+- Result card header now dynamically displays the current summary type
+- Removed duplicate app.run() code
 
 ### v1.2 (2026-06-14)
 - Added multiple summary templates: Today's Plan, Study Notes, Quick Summary, Action Items, plus custom summary types

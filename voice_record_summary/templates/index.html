@@ -802,8 +802,9 @@
         <button class="copy-btn" id="reSummarizeBtn" style="border-color:var(--accent);color:var(--accent);">重新总结</button>
       </div>
     </div>
+
     <div class="result-section" style="margin-top: 20px;">
-      <h3>总结 <span style="font-size:0.7rem;color:var(--muted);font-weight:400;">(中英双语 · 可编辑)</span></h3>
+      <h3>总结 <span style="font-size:0.7rem;color:var(--muted);font-weight:400;" id="summaryTypeLabel">(中英双语 · 可编辑)</span></h3>
       <textarea class="result-textarea" id="summaryText" placeholder="（等待总结结果...）" style="min-height:200px;"></textarea>
       <div class="result-text summary-md" id="summaryPreview" style="display:none;"></div>
       <div style="display:flex;gap:8px;margin-top:8px;">
@@ -964,7 +965,6 @@ function getSummaryType() {
   }
   return select.value;
 }
-
 el('summaryType').addEventListener('change', () => {
   const isCustom = el('summaryType').value === '__custom__';
   el('summaryTypeCustom').style.display = isCustom ? '' : 'none';
@@ -1143,6 +1143,7 @@ async function transcribeAudio(blob) {
     if (!data.transcript) transcriptEl.placeholder = '（未识别到语音内容）';
     setSummaryContent(data.summary || '（无法生成总结）');
     currentTimestamp = data.timestamp;
+    updateSummaryTypeLabel(data.summary_type || getSummaryType());
     resultCard.style.display = 'block';
     statusEl.textContent = statusMsg;
     recordBtn.disabled = false;
@@ -1325,8 +1326,8 @@ el('reSummarizeBtn').addEventListener('click', async () => {
       statusEl.textContent = '总结失败: ' + data.error;
     } else {
       setSummaryContent(data.summary || '（无法生成总结）');
+      updateSummaryTypeLabel(data.summary_type || getSummaryType());
       statusEl.textContent = '总结已更新';
-      // Highlight save button to remind user new summary is unsaved
       const saveBtn = el('saveSummaryBtn');
       saveBtn.style.borderColor = 'var(--accent2)';
       saveBtn.style.color = 'var(--accent2)';
@@ -1409,6 +1410,13 @@ function renderMarkdown(text) {
   html = html.replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>');
   html = html.replace(/<\/ul>\s*<ul>/gs, '');
   return html;
+}
+
+function updateSummaryTypeLabel(type) {
+  const label = el('summaryTypeLabel');
+  if (label && type) {
+    label.textContent = '(' + type + ' · 中英双语 · 可编辑)';
+  }
 }
 
 function setSummaryContent(text) {
