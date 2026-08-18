@@ -1,23 +1,24 @@
 # Voice Record Summary — Speech Recording & Summarization Tool
 
-A one-stop tool: record or upload audio in the browser → speech recognition → AI-powered structured summary.
+A one-stop tool: record / stream / upload audio in the browser → speech recognition → AI-powered structured summary.
 
-> **Current version: v1.3** | [中文](README.md)
+> **Current version: v1.4** | [中文](README.md)
 
 ## Features
 
-- **Browser recording**: Click the microphone button to record directly in the browser
+- **Recording recognition**: Click the microphone to record; transcription runs after you stop
+- **Streaming recognition**: Real-time transcription while speaking; click again to stop, then auto-summarize
 - **File upload**: Drag-and-drop or select local audio files (WAV / WebM / MP3 / M4A / OGG / FLAC / MP4, etc.)
 - **Three working modes**: Local, Online, Hybrid
-- **Multi-engine speech recognition**:
-  - Local: OpenAI Whisper (tiny~large-v3/turbo), FunASR SenseVoice (auto-detected engine type)
-  - Online: OpenAI-compatible API, Alibaba Cloud DashScope native ASR (fun-asr-realtime)
+- **Local speech recognition**: FunASR engine (SenseVoice for offline, Paraformer for streaming)
+- **Online speech recognition**: OpenAI-compatible `/audio/transcriptions` endpoint, and Alibaba Cloud DashScope native ASR (fun-asr-realtime, with streaming WebSocket)
 - **Multiple summary templates**: Meeting Summary, Today's Plan, Study Notes, Quick Summary, Action Items, plus custom summary types
-- **AI summarization**: Structured bilingual (Chinese + English) summaries via online LLMs (GPT / DeepSeek / Qwen, etc.) or local TF-IDF algorithm
-- **Provider presets**: One-click switching between OpenAI / DeepSeek / Alibaba Cloud / Custom, with auto-filled API URLs and recommended models
+- **AI summarization**: Structured bilingual (Chinese + English) summaries via online LLMs (DeepSeek V4 / Qwen / GLM / Claude, etc., any OpenAI-compatible endpoint) or the local TF-IDF algorithm
+- **ASR correction**: AI fixes homophone errors and adds punctuation (streaming mode supports real-time correction)
+- **Provider presets**: One-click switching between DeepSeek / Alibaba Cloud / Custom, with auto-filled API URLs and recommended models
 - **Connection testing**: Independently test STT and Chat API connectivity
 - **Manual editing**: Both transcript and summary are editable; re-summarize after modifying the transcript
-- **Markdown preview**: Toggle between edit and preview modes for the summary
+- **Markdown preview & download**: Toggle edit/preview, and download the summary as a `.md` file
 - **Settings persistence**: All settings auto-saved to browser localStorage, survives page refresh
 - **History**: Automatically saves recordings, transcripts, and summaries; supports viewing and single/clear-all deletion
 - **Audio playback**: Play back recordings or uploaded files directly in the page
@@ -30,9 +31,9 @@ A one-stop tool: record or upload audio in the browser → speech recognition �
 pip install -r requirements.txt
 ```
 
-> Local speech recognition requires PyTorch. Install the version matching your environment: `pip install torch`
+> Local speech recognition (FunASR) requires PyTorch. Install the version matching your environment: `pip install torch`
 >
-> Alibaba Cloud ASR mode requires ffmpeg for audio format conversion: [ffmpeg.org](https://ffmpeg.org/)
+> Alibaba Cloud ASR / some audio format conversions require ffmpeg: [ffmpeg.org](https://ffmpeg.org/)
 
 ### 2. Start the Server
 
@@ -42,22 +43,29 @@ python app.py
 
 Open `http://localhost:5000` in your browser.
 
+## Recognition Modes
+
+| Mode | Description |
+|------|-------------|
+| **Recording** | Speak, then click stop; transcription runs once |
+| **Streaming** | Real-time transcription while speaking, displayed live; auto-summarize when stopped |
+
 ## Working Modes
 
 | Mode | Speech Recognition | Summarization |
 |------|-------------------|---------------|
-| **Local** | Local engine (Whisper / SenseVoice) | Local TF-IDF algorithm |
-| **Hybrid** | Local engine | Online LLM |
+| **Local** | Local FunASR engine | Local TF-IDF algorithm |
+| **Hybrid** | Local FunASR engine | Online LLM |
 | **Online** | Online API | Online LLM |
 
 ### Local Mode
 
-Enter the engine name or path in the "Model Path" field:
+Enter a ModelScope model ID or a local folder path in the "Model Path" field:
 
-- **Whisper**: `tiny` / `base` / `small` / `medium` / `large-v3` / `turbo`
-- **FunASR SenseVoice**: `iic/SenseVoiceSmall` (ModelScope model ID) or a local folder path
+- **Offline**: `iic/SenseVoiceSmall` (multilingual, recommended default) or another FunASR model
+- **Streaming**: `paraformer-zh-streaming` or another Paraformer streaming model
 
-Engine type is auto-detected from the model name and folder contents — no manual selection needed.
+Engine type is auto-detected from the model name and folder contents.
 
 ### Online Mode
 
@@ -65,12 +73,11 @@ Click a provider preset to quickly fill in settings, then enter your API Key:
 
 | Preset | Speech Recognition | Summarization |
 |--------|-------------------|---------------|
-| OpenAI | whisper-1 / gpt-4o-transcribe | gpt-4o-mini |
-| DeepSeek | Not supported (falls back to local) | deepseek-chat |
-| Alibaba Cloud | fun-asr-realtime (native WebSocket API) | qwen-plus |
-| Custom | Any OpenAI-compatible endpoint | Any OpenAI-compatible endpoint |
+| DeepSeek | OpenAI-compatible transcription endpoint | deepseek-v4-flash / deepseek-v4-pro |
+| Alibaba Cloud | fun-asr-realtime (native WebSocket streaming ASR) | qwen-plus |
+| Custom | Any OpenAI-compatible endpoint | Any OpenAI-compatible endpoint (e.g. glm-4-flash, claude-sonnet-4-7) |
 
-Use the "Test Connection" button to verify your API Key and endpoint.
+Use the "Test Connection" button to verify your STT or Chat API Key and endpoint.
 
 ## Summary Templates
 
@@ -90,13 +97,27 @@ Use the "Test Connection" button to verify your API Key and endpoint.
 | GET | `/` | Main page |
 | POST | `/api/transcribe` | Upload audio, run recognition + summarization |
 | POST | `/api/summarize` | Re-generate summary from text |
+| POST | `/api/correct` | Correct/polish raw ASR text |
 | POST | `/api/save-summary` | Save edited summary content |
 | POST | `/api/test-connection` | Test API connection (supports STT and Chat) |
 | GET | `/api/history` | Get history list |
+| GET | `/api/download-summary/<timestamp>` | Download a record's Markdown summary |
+| GET | `/api/local-models` | List locally cached FunASR models |
+| POST | `/api/preload-streaming-model` | Preload a streaming recognition model |
 | DELETE | `/api/history` | Clear all history |
 | DELETE | `/api/history/<timestamp>` | Delete a single record |
+| WS | `/ws/stream` | Local streaming recognition WebSocket |
+| WS | `/ws/stream-online` | Alibaba Cloud online streaming recognition WebSocket |
 
 ## Changelog
+
+### v1.4 (2026-08)
+- Migrated backend from Flask to FastAPI + Uvicorn, added HTTPS (self-signed) support
+- Migrated local recognition engine from Whisper to FunASR (SenseVoice / Paraformer)
+- Added streaming recognition (recording / streaming modes) with local and online (Alibaba Cloud WebSocket) real-time transcription
+- Added `/api/correct`, `/api/download-summary`, `/api/local-models`, `/api/preload-streaming-model` endpoints
+- Updated provider presets: defaulting to DeepSeek V4 (deepseek-v4-flash / deepseek-v4-pro), removed the OpenAI preset
+- Fixed DeepSeek V4 summarization returning empty results: requests now explicitly disable thinking mode (`thinking: {"type": "disabled"}`) and fall back to `reasoning_content` when `content` is empty
 
 ### v1.3 (2026-06-19)
 - Rewrote AI summarization prompts with three mandatory principles: faithfulness (no fabrication), ASR error correction, and topic-first reasoning
@@ -136,7 +157,7 @@ Use the "Test Connection" button to verify your API Key and endpoint.
 
 ```
 voice_record_summary/
-├── app.py               # Flask backend
+├── app.py               # FastAPI backend
 ├── requirements.txt     # Python dependencies
 ├── templates/
 │   └── index.html       # Frontend (single-file SPA)
@@ -149,4 +170,4 @@ voice_record_summary/
 
 - Python 3.8+
 - [ffmpeg](https://ffmpeg.org/) (required for Alibaba Cloud ASR — converts browser-recorded WebM to WAV)
-- PyTorch (required for local Whisper)
+- PyTorch (required for local FunASR recognition)

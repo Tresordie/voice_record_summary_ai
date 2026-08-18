@@ -1,23 +1,24 @@
 # Voice Record Summary — 语音录制与总结工具
 
-浏览器端录音或上传音频文件 → 语音识别 → AI 大模型自动总结要点，一站式工具。
+浏览器端录音 / 流式识别 / 上传音频文件 → 语音识别 → AI 大模型自动总结要点，一站式工具。
 
-> **当前版本：v1.3** | [English](README_EN.md)
+> **当前版本：v1.4** | [English](README_EN.md)
 
 ## 功能
 
-- **浏览器录音**：点击麦克风按钮直接在浏览器中录音
+- **录音识别**：点击麦克风按钮直接录制，结束后自动转写
+- **流式识别**：麦克风一边说话一边实时转写，再次点击结束，结束后自动总结
 - **文件上传**：支持拖放或选择本地音频文件（WAV / WebM / MP3 / M4A / OGG / FLAC / MP4 等）
 - **三种工作模式**：本地识别、在线识别、混合模式
-- **多引擎语音识别**：
-  - 本地：OpenAI Whisper（tiny~large-v3/turbo）、FunASR SenseVoice（自动检测引擎类型）
-  - 在线：OpenAI 兼容 API、阿里云百炼 DashScope 原生 ASR（fun-asr-realtime）
+- **本地语音识别**：FunASR 引擎（SenseVoice 离线识别、Paraformer 流式识别）
+- **在线语音识别**：OpenAI 兼容 `/audio/transcriptions` 端点、阿里云百炼 DashScope 原生 ASR（fun-asr-realtime，支持流式 WebSocket）
 - **多种总结模板**：会议总结、今日计划、学习笔记、快速摘要、待办事项，支持自定义总结方式
-- **AI 文本总结**：通过在线大模型（GPT / DeepSeek / Qwen 等）或本地 TF-IDF 算法对识别结果归纳整理，输出中英双语结构化纪要
-- **服务商预设**：一键切换 OpenAI / DeepSeek / 阿里云 / 自定义，自动填充 API 地址和推荐模型
+- **AI 文本总结**：通过在线大模型（DeepSeek V4 / Qwen / GLM / Claude 等，任意 OpenAI 兼容端点）或本地 TF-IDF 算法归纳整理，输出中英双语结构化纪要
+- **语音纠错**：AI 自动修正同音错字、补充标点分段（流式识别支持实时纠错）
+- **服务商预设**：一键切换 DeepSeek / 阿里云 / 自定义，自动填充 API 地址和推荐模型
 - **连接测试**：可单独测试 STT 和 Chat API 的连通性
 - **手动编辑**：识别文本和总结均可直接编辑，修改后可重新生成总结
-- **Markdown 预览**：总结支持编辑/预览切换，查看渲染效果
+- **Markdown 预览与下载**：总结支持编辑/预览切换，可下载为 `.md` 文件
 - **设置记忆**：所有配置自动保存到浏览器 localStorage，刷新不丢失
 - **历史记录**：自动保存每次的录音、识别文本和总结，支持查看和单条/全部删除
 - **音频回放**：录音或上传后可直接在页面中播放
@@ -30,9 +31,9 @@
 pip install -r requirements.txt
 ```
 
-> 本地语音识别需要 PyTorch，请根据你的环境安装对应版本：`pip install torch`
+> 本地语音识别（FunASR）需要 PyTorch，请根据你的环境安装对应版本：`pip install torch`
 >
-> 在线阿里云 ASR 模式下需要 ffmpeg 用于音频格式转换：[ffmpeg.org](https://ffmpeg.org/)
+> 阿里云 ASR / 部分音频格式转换需要 ffmpeg：[ffmpeg.org](https://ffmpeg.org/)
 
 ### 2. 启动服务
 
@@ -42,22 +43,29 @@ python app.py
 
 打开浏览器访问 `http://localhost:5000`
 
+## 识别方式
+
+| 识别方式 | 说明 |
+|----------|------|
+| **录音识别** | 说完一段话后点击停止，再统一转写 |
+| **流式识别** | 边说话边实时转写，识别内容实时显示在文本框，结束后自动总结 |
+
 ## 工作模式
 
 | 模式 | 语音识别 | 文本总结 |
 |------|----------|----------|
-| **本地** | 本地引擎（Whisper / SenseVoice） | 本地 TF-IDF 算法 |
-| **混合** | 本地引擎 | 在线大模型 |
+| **本地** | 本地 FunASR 引擎 | 本地 TF-IDF 算法 |
+| **混合** | 本地 FunASR 引擎 | 在线大模型 |
 | **在线** | 在线 API | 在线大模型 |
 
 ### 本地模式
 
-在「模型路径」中填入引擎名称或路径：
+在「模型路径」中填入 ModelScope 模型 ID 或本地文件夹路径：
 
-- **Whisper**：`tiny` / `base` / `small` / `medium` / `large-v3` / `turbo`
-- **FunASR SenseVoice**：`iic/SenseVoiceSmall`（ModelScope 模型 ID）或本地文件夹路径
+- **离线识别**：`iic/SenseVoiceSmall`（多语言，推荐默认值）或其他 FunASR 模型
+- **流式识别**：`paraformer-zh-streaming` 或其他 Paraformer 流式模型
 
-引擎类型会根据模型名称和文件夹内容自动检测，无需手动指定。
+引擎类型会根据模型名称和文件夹内容自动检测。
 
 ### 在线模式
 
@@ -65,10 +73,9 @@ python app.py
 
 | 预设 | 语音识别 | 文本总结 |
 |------|----------|----------|
-| OpenAI | whisper-1 / gpt-4o-transcribe | gpt-4o-mini |
-| DeepSeek | 不支持（自动回退本地） | deepseek-chat |
-| 阿里云 | fun-asr-realtime（原生 WebSocket API） | qwen-plus |
-| 自定义 | 任意 OpenAI 兼容端点 | 任意 OpenAI 兼容端点 |
+| DeepSeek | OpenAI 兼容转录端点 | deepseek-v4-flash / deepseek-v4-pro |
+| 阿里云 | fun-asr-realtime（原生 WebSocket 流式 ASR） | qwen-plus |
+| 自定义 | 任意 OpenAI 兼容端点 | 任意 OpenAI 兼容端点（如 glm-4-flash、claude-sonnet-4-7 等） |
 
 点击「测试连接」按钮可以验证 STT 或 Chat API Key 和端点是否可用。
 
@@ -88,15 +95,29 @@ python app.py
 | 方法 | 路径 | 说明 |
 |------|------|------|
 | GET | `/` | 主页面 |
-| POST | `/api/transcribe` | 上传音频并执行识别+总结 |
+| POST | `/api/transcribe` | 上传音频并执行识别 + 总结 |
 | POST | `/api/summarize` | 对文本重新生成总结 |
+| POST | `/api/correct` | AI 纠错/润色原始识别文本 |
 | POST | `/api/save-summary` | 保存编辑后的总结内容 |
 | POST | `/api/test-connection` | 测试 API 连接（支持 STT 和 Chat） |
 | GET | `/api/history` | 获取历史记录列表 |
+| GET | `/api/download-summary/<timestamp>` | 下载单条记录的 Markdown 总结 |
+| GET | `/api/local-models` | 获取本地已缓存的 FunASR 模型列表 |
+| POST | `/api/preload-streaming-model` | 预加载流式识别模型 |
 | DELETE | `/api/history` | 清空全部历史 |
 | DELETE | `/api/history/<timestamp>` | 删除单条记录 |
+| WS | `/ws/stream` | 本地流式识别 WebSocket |
+| WS | `/ws/stream-online` | 阿里云在线流式识别 WebSocket |
 
 ## 更新日志
+
+### v1.4 (2026-08)
+- 后端从 Flask 迁移到 FastAPI + Uvicorn，新增 HTTPS（自签名）支持
+- 本地识别引擎从 Whisper 迁移到 FunASR（SenseVoice / Paraformer）
+- 新增流式识别（录音识别 / 流式识别两种模式），支持本地与在线（阿里云 WebSocket）流式转写
+- 新增 `/api/correct` 语音纠错、`/api/download-summary` Markdown 下载、`/api/local-models`、`/api/preload-streaming-model` 等端点
+- 服务商预设更新：默认使用 DeepSeek V4（deepseek-v4-flash / deepseek-v4-pro），移除 OpenAI 预设
+- 修复 DeepSeek V4 无法总结的问题：请求时显式关闭思考模式（`thinking: {"type": "disabled"}`），并在 `content` 为空时回退 `reasoning_content`
 
 ### v1.3 (2026-06-19)
 - 重写 AI 总结提示词，增加三条强制原则：忠实原文不编造、语音识别纠错、先理解后总结
@@ -136,7 +157,7 @@ python app.py
 
 ```
 voice_record_summary/
-├── app.py               # Flask 后端主程序
+├── app.py               # FastAPI 后端主程序
 ├── requirements.txt     # Python 依赖
 ├── templates/
 │   └── index.html       # 前端页面（单文件）
@@ -148,5 +169,5 @@ voice_record_summary/
 ## 系统要求
 
 - Python 3.8+
-- [ffmpeg](https://ffmpeg.org/)（在线阿里云 ASR 模式下，浏览器录制的 WebM 格式需转码为 WAV）
-- 本地 Whisper 使用需要 PyTorch
+- [ffmpeg](https://ffmpeg.org/)（阿里云 ASR 模式下，浏览器录制的 WebM 格式需转码为 WAV）
+- 本地 FunASR 识别需要 PyTorch
