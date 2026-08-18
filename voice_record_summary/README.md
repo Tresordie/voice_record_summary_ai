@@ -41,7 +41,15 @@ pip install -r requirements.txt
 python app.py
 ```
 
-打开浏览器访问 `http://localhost:5000`
+启动后终端会打印可直接点击的访问链接，点击即可进入应用：
+
+```
+  本机访问:  http://127.0.0.1:5000
+  局域网访问: http://localhost:5000
+  加密访问:  https://127.0.0.1:5443  (自签名证书)
+```
+
+也可手动打开浏览器访问 `http://localhost:5000`
 
 ## 识别方式
 

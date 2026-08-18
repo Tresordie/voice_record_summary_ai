@@ -41,7 +41,15 @@ pip install -r requirements.txt
 python app.py
 ```
 
-Open `http://localhost:5000` in your browser.
+On startup the terminal prints clickable access links — click one to open the app:
+
+```
+  Local:       http://127.0.0.1:5000
+  LAN:         http://localhost:5000
+  HTTPS:       https://127.0.0.1:5443  (self-signed)
+```
+
+You can also manually open `http://localhost:5000` in your browser.
 
 ## Recognition Modes
 
