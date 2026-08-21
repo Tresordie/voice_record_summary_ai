@@ -1,0 +1,159 @@
+## 会议总结
+
+### 会议主题
+本次会议旨在逐条梳理美国/加拿大方面（Ever/Edward 等）通过邮件提出的VCU测试设备相关问题，明确问题内容并讨论初步改进方向，为后续与对方进一步沟通确认做准备。
+
+### 关键讨论
+
+**1. VCU屏蔽箱/盖子安全性问题**
+- 邮件指出VCU测试座/屏蔽箱正面有光栅，但侧面无防护；对方反馈有人从侧面伸入萝卜，萝卜被直接碾碎，存在安全隐患。
+- 对方终端客户曾有过类似重大安全事故，因此要求必须整改，可能要求四面都装光栅，甚至要求开门报警等更高规格安全措施。
+- 当前设备是复制现有产线测试设备，仅在外面加了一个亚克力板机箱；设备原高度约1.8米，后因空运包装限制被砍到约1.5米，可能造成上部防护不足。
+- 发言者个人判断：从图片看，设备上部偏矮，可能是人员个子高、手从上方伸入的原因。
+- 对方要求对现有手上那一台也必须给出改善方案并落实，否则无法交付给客户。
+- 后续需要对方说明"夹萝卜"具体是怎么发生的（正面伸入还是侧面伸入），以及对方满意的标准。
+
+**2. VCU软件问题**
+- 邮件反馈：Take的VISA软件频繁崩溃、间歇性停止工作，导致无法测试；每次开机或启动AT软件前，都需要手动启动相关软件，不能自动启动。
+- 发言者询问实际测试中是否出现过频繁崩溃，回应是"基本上没有"；但手动启动软件的问题确实存在，需要改善。
+- 后续需考虑：AT软件能否检测到VISA崩溃并自动调用脚本重启或恢复；需要对方提供具体的图文描述，说明崩溃发生的具体情况。
+
+**3. VCU测试时间/烧录时间过长**
+- 邮件反馈：VCU总测试时间约22分钟，其中烧录占14分钟。
+- 当前烧录逻辑：先检查Logo/软件版本与服务器是否一致，不一致则从服务器下载烧录。
+- 发言者指出：目前没有先检查产品内部工位版本，如果产品版本与服务器一致，就不需要烧录，这一点可以改善。
+
+**4. 设备保险丝全部烧毁与排插问题**
+- 对方提到"所有设备的保险丝都烧了"，不确定是VCU还是MCM的保险丝烧了。
+- 对方指出排插可能过流能力不足，在110V条件下相同功率电流会翻倍；排插上没有断流保护断路器，排插烧毁后电流灌入仪器导致保险丝烧毁。
+- 举例：1000W设备在220V下用5-6A排插即可，但在110V下需10A或15A排插。
+- MCM和VCU使用相同排插，厂商称可覆盖110V，但实际可能有问题；需要进一步确认仪器总功率和所需排插规格，可能需咨询"A"。
+- 保险丝在北美很难买到，建议下一批寄出前准备保险丝备件，让客户自行更换。
+
+**5. 包装与运输问题**
+- 客户反馈包装需6人才能拆一台设备，两台设备需12人；一名工程师在搬运过程中背部受伤，具体原因不明。
+- 运输过程中门脱落，几乎所有电缆断开；需要客户提供照片确认包装损坏情况。
+- 包装由专业打包厂商完成，但仍有问题，需进一步询问客户。
+
+**6. 线缆长度不足与仪器固定问题**
+- 线缆长度不够，主要集中在VCU工作站、显示器和翻盖式连接器附近。
+- 仪器固定带位于设备上方约两英寸处，无法起到固定作用；线太短无法固定，反而阻碍操作。
+- 屏幕分析仪没有安装支架；部分仪器（如屏幕分析仪、WiFi路由器）可能未固定，运输中晃动碰撞。
+
+**7. 软件提示与Windows激活问题**
+- 软件提示"电池已锁定"（battery lock），但未提示操作员手动锁定电池，可能被误认为只是提示，实际软件要求操作；不确定是翻译不准还是软件设计问题，需要产线测试MCM弹窗内容确认。
+- 客户反馈Windows未激活，语言无法更改；质疑是否购买正版品牌机，品牌机应已激活；需提供激活码或确认激活状态。客户不希望重装系统，因为已交付机器上的测试软件依赖现有系统。
+
+**8. 软件卸载需求**
+- 客户关心远程访问软件，其他软件可接受；询问哪些预装软件可以卸载，希望移除不需要的软件。
+- 提到可能装了多个远程访问软件（实际可能只有两个，如Microsoft相关），需确认并卸载无用软件。
+
+**9. 气压临时改善措施**
+- 讨论涉及安全相关气压问题：当前VCU测试要求为0.4兆帕，约等于58 PSI，接近60 PSI；若要求60 PSI，会导致"萝卜"被碾碎，无法正常使用。
+- L提出是否可将压力降到30 PSI（约0.2兆帕）进行测试；可尝试将产线测试座压力调到0.2兆帕，看是否能正常使用。
+- 若产线调到0.2兆帕能正常使用，可先临时回复对方该临时措施；现场人员可通过将装置"悬掉"来测试是否可正常开合，判断标准是盖子能否正常盖下、弹起，气缸是否正常。
+- 有观点认为现场情况与模拟不同，需谨慎判断；有观点认为对方已能调到一半压力，不应再进一步调整；强调不要揣测对方想法，只需验证30 PSI是否可用。
+
+### 决策事项
+- 先搞清楚问题是什么，细节部分后续再找Ever/Edward单独开会确认，不急于当场给出解决方案。
+- 针对安全性问题，团队需先提出自己的改进想法或方案，方便下次与对方沟通。
+- 第二台设备出货前需改善上述所有问题。
+- 内部可先处理的事项：软件弹窗检查、Windows激活、软件卸载、排插规格确认。
+- 计划回复邮件：说明会后对问题的理解；若未完全明白，需请对方提供更多细节（如图片、视频）。
+
+### 待办事项
+- 团队线下讨论并整理针对上述问题的comments和改进方案。
+- 确认Ever/Edward何时有空开会，进一步澄清问题细节。
+- 针对安全性问题，准备至少一个简单改善方案，便于下次会议沟通。
+- 针对软件手动启动问题，会后研究能否实现开机自动启动。
+- 针对VISA崩溃问题，研究AT软件能否自动检测并恢复。
+- 针对烧录时间问题，研究先检查产品内部版本再决定是否烧录的可行性。
+- 后续还需讨论MCM相关问题（邮件中提及但本段未展开）。
+- 需向客户反馈并询问：包装照片、线缆短的具体位置、翻盖式连接器问题、测试时间等。
+- 需进一步确认仪器总功率和所需排插规格，可能需咨询"A"。
+- 建议下一批寄出前准备保险丝备件，包括之前烧毁的保险丝，让客户自行更换。
+- 需产线测试MCM弹窗内容，确认"电池已锁定"弹窗具体含义。
+- 需确认并卸载无用软件。
+- 后续再查看并模拟30 PSI气压临时措施是否可用。
+- 后续还有两台AP设备，之后不再有；后续产线和产品都没有了，无法继续测试，后续只能通过"上机"方式处理。
+
+---
+
+## English Summary
+
+### Meeting Topic
+The purpose of this meeting was to review item by item the issues raised via email by the US/Canada side (Ever/Edward, etc.) regarding the VCU test equipment, clarify the problems, and discuss preliminary improvement directions in preparation for further communication with the other party.
+
+### Key Discussions
+
+**1. VCU Shielding Box/Cover Safety Issue**
+- The email pointed out that the VCU test socket/shielding box has a light curtain on the front but no protection on the sides; the other party reported that someone inserted a radish from the side and it was crushed, posing a safety hazard.
+- The other party's end customer had a similar major safety incident before, so rectification is required; they may require light curtains on all four sides, and possibly even higher-spec safety measures such as door-open alarms.
+- The current equipment is a copy of the existing production line test equipment, with only an acrylic enclosure added on the outside; the original height was about 1.8 meters but was reduced to about 1.5 meters due to air freight packaging restrictions, which may have resulted in insufficient top protection.
+- The speaker's personal judgment: based on the photos, the top of the equipment appears too low, which may be why a tall person could reach in from above.
+- The other party requires that an improvement plan must be provided and implemented for the one unit currently in their hands, otherwise it cannot be delivered to the customer.
+- Follow-up needed: the other party needs to explain exactly how the "radish crushing" occurred (from the front or the side), and what standard would satisfy them.
+
+**2. VCU Software Issues**
+- The email reported that Take's VISA software crashes frequently and intermittently stops working, making testing impossible; also, every time the machine is powered on or the AT software is started, the related software must be manually launched and cannot auto-start.
+- The speaker asked whether frequent crashes actually occurred during testing; the response was "basically no"; however, the manual software startup issue does exist and needs improvement.
+- Follow-up considerations: whether the AT software can detect a VISA crash and automatically invoke a script to restart or recover; the other party needs to provide specific illustrated descriptions of the crash circumstances.
+
+**3. VCU Test Time/Programming Time Too Long**
+- The email reported that the total VCU test time is approximately 22 minutes, of which programming accounts for 14 minutes.
+- Current programming logic: first check whether the Logo/software version matches the server; if not, download and program from the server.
+- The speaker pointed out that there is currently no check of the product's internal station version first; if the product version already matches the server, programming would be unnecessary. This can be improved.
+
+**4. All Equipment Fuses Burned Out and Power Strip Issues**
+- The other party mentioned that "all equipment fuses burned out"; it is unclear whether it was the VCU or MCM fuses.
+- The other party pointed out that the power strip may have insufficient current-carrying capacity; at 110V, the current doubles for the same power. The power strip has no circuit breaker for overcurrent protection; when the strip burned out, current flowed into the instruments and blew the fuses.
+- Example: a 1000W device at 220V only needs a 5-6A power strip, but at 110V it requires a 10A or 15A strip.
+- MCM and VCU use the same power strip; the vendor claims it covers 110V, but in practice there may be problems; further confirmation of total instrument power and required power strip specifications is needed, possibly requiring consultation with "A".
+- Fuses are difficult to buy in North America; it is recommended to prepare spare fuses before the next shipment, including the previously burned ones, so the customer can replace them themselves.
+
+**5. Packaging and Shipping Issues**
+- The customer reported that it takes 6 people to unpack one device, and 12 people for two devices; one engineer suffered a back injury during handling, the specific cause is unknown.
+- During transport, a door fell off and almost all cables were disconnected; the customer needs to provide photos to confirm the packaging damage.
+- The packaging was done by a professional packing vendor, but problems still occurred; further inquiry with the customer is needed.
+
+**6. Insufficient Cable Length and Instrument Securing Issues**
+- Cable lengths are insufficient, mainly near the VCU workstation, monitor, and flip-up connectors.
+- The instrument securing straps are located about two inches above the equipment and cannot serve their securing function; the cables are too short to be secured and instead obstruct operation.
+- The screen analyzer has no mounting bracket; some instruments (such as the screen analyzer and WiFi router) may not be secured and could shift and collide during transport.
+
+**7. Software Prompt and Windows Activation Issues**
+- The software prompts "battery lock" but does not prompt the operator to manually lock the battery; it may be misinterpreted as merely a notification when the software actually requires action; it is unclear whether this is a translation issue or a software design issue. Production line testing of the MCM popup content is needed to confirm the meaning of the "battery lock" popup.
+- The customer reported that Windows is not activated and the language cannot be changed; there is a question of whether a genuine branded machine was purchased, as branded machines should already be activated; an activation code or confirmation of activation status is needed. The customer does not want to reinstall the system because the test software on the delivered machines depends on the existing system.
+
+**8. Software Uninstallation Requirements**
+- The customer is concerned about remote access software; other software is acceptable. They asked which pre-installed software can be uninstalled and wish to remove unnecessary software.
+- It was mentioned that multiple remote access software programs may have been installed (in reality there may be only two, such as Microsoft-related ones); confirmation and removal of unnecessary software is needed.
+
+**9. Temporary Air Pressure Improvement Measure**
+- Discussion on safety-related air pressure issues: the current VCU test requirement is 0.4 MPa, approximately 58 PSI, close to 60 PSI; if 60 PSI is required, the "radish" would be crushed and normal use would be impossible.
+- L proposed whether the pressure could be reduced to 30 PSI (approximately 0.2 MPa) for testing; an attempt could be made to adjust the production line test socket pressure to 0.2 MPa to see if it works normally.
+- If the production line works normally at 0.2 MPa, this temporary measure could be communicated to the other party first; on-site personnel could test by "suspending" the device to see if it opens and closes normally, with the criteria being whether the cover can close and spring up properly and whether the cylinder functions normally.
+- Some opined that on-site conditions differ from simulation and caution is needed; others opined that since the other party can already adjust to half pressure, no further adjustment should be made; it was emphasized not to speculate about the other party's intentions, but simply to verify whether 30 PSI is usable.
+
+### Decisions
+- First understand what the problems are; details will be confirmed in separate meetings with Ever/Edward later; do not rush to provide solutions on the spot.
+- For the safety issue, the team must first propose their own improvement ideas or solutions to facilitate the next communication with the other party.
+- All of the above issues must be improved before the second unit is shipped.
+- Items that can be handled internally first: software popup inspection, Windows activation, software uninstallation, and power strip specification confirmation.
+- Plan to reply to the email: explain the understanding of the issues after the meeting; if not fully understood, request more details from the other party (such as photos and videos).
+
+### Action Items
+- The team to discuss offline and compile comments and improvement plans for the above issues.
+- Confirm when Ever/Edward are available for a meeting to further clarify issue details.
+- For the safety issue, prepare at least one simple improvement plan for the next meeting.
+- For the manual software startup issue, research whether auto-start on boot can be implemented.
+- For the VISA crash issue, research whether the AT software can automatically detect and recover.
+- For the programming time issue, research the feasibility of checking the product's internal version first before deciding whether to program.
+- MCM-related issues still need to be discussed later (mentioned in the email but not expanded upon in this segment).
+- Need to follow up with the customer and ask about: packaging photos, specific locations of short cables, flip-up connector issues, test time, etc.
+- Further confirmation of total instrument power and required power strip specifications is needed, possibly requiring consultation with "A".
+- It is recommended to prepare spare fuses before the next shipment, including the previously burned ones, for the customer to replace themselves.
+- Production line testing of the MCM popup content is needed to confirm the meaning of the "battery lock" popup.
+- Unnecessary software needs to be confirmed and uninstalled.
+- Follow up later to review and simulate whether the 30 PSI temporary air pressure measure is usable.
+- There are two more AP units afterward, and then no more; the production line and products will no longer exist, so testing cannot continue; subsequent handling can only be done through "on-machine" methods.

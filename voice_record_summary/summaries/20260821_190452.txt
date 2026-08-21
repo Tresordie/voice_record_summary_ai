@@ -1,0 +1,7 @@
+## 快速摘要
+
+本文介绍了两种型号的船口（应为“锁扣”或类似设备），一种可充电，另一种不可充电，但两者均配备NFC芯片。NFC芯片的主要功能是在用户使用完e-bike或scooter后，将其归还至停靠点时，通过硬件设备识别NFC信号实现上锁，确认归还完成。用户需要使用车辆时，可通过刷卡或手机APP与服务器通信，实现解锁并正常使用。
+
+## English Summary
+
+This text describes two models of a locking device (referred to as "船口"), one rechargeable and one non-rechargeable, both equipped with NFC chips. The NFC chip enables locking when an e-bike or scooter is returned to a docking station, as the station's hardware recognizes the NFC signal to confirm the return. To use a vehicle, users can unlock it by swiping a card or using a mobile app to communicate with the server, allowing normal operation.

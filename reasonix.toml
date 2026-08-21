@@ -1,0 +1,2 @@
+[permissions]
+allow = ["Edit", "Bash=cd \"F:\\gitee\\voice_record_summary_ai\" && python -m py_compile voice_record_summary/app.py && echo \"OK: app.py compiles\""]

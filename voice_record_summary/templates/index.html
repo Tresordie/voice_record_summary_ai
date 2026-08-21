@@ -5,26 +5,402 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>语音录制 & 总结工具</title>
 <style>
+  /* ---- Catppuccin Mocha (flavor base) ---- */
   :root {
-    --bg: #05050d;
-    --card: rgba(12, 12, 32, 0.85);
-    --border: rgba(0, 212, 255, 0.12);
-    --border-hover: rgba(0, 212, 255, 0.35);
-    --text: #d8dee9;
-    --muted: #5a6880;
-    --accent: #00d4ff;
-    --accent-glow: rgba(0, 212, 255, 0.25);
-    --accent2: #00e676;
-    --accent2-glow: rgba(0, 230, 118, 0.25);
-    --purple: #a855f7;
-    --purple-glow: rgba(168, 85, 247, 0.25);
-    --danger: #ff3b5c;
-    --danger-glow: rgba(255, 59, 92, 0.3);
+    --bg: #1e1e2e;
+    --card: rgba(49, 50, 68, 0.85);
+    --border: rgba(147, 153, 178, 0.18);
+    --border-hover: rgba(147, 153, 178, 0.4);
+    --text: #cdd6f4;
+    --muted: #7f849c;
+    --danger: #f38ba8;
+    --danger-glow: rgba(243, 139, 168, 0.25);
+    --danger-soft: rgba(243, 139, 168, 0.1);
+    --active-text: #cdd6f4;
+    --panel-bg: rgba(24, 24, 37, 0.55);
+    --row-bg: rgba(49, 50, 68, 0.45);
+    --section-bg: rgba(49, 50, 68, 0.38);
+    --input-bg: rgba(17, 17, 27, 0.55);
+    --result-bg: rgba(17, 17, 27, 0.5);
+    --upload-bg: rgba(49, 50, 68, 0.32);
+    --option-bg: #313244;
+    --md-li: #a6adc8;
+    --card-hover-border: rgba(147, 153, 178, 0.4);
+    --card-shadow: 0 4px 26px rgba(8, 10, 16, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    --card-hover-shadow: 0 16px 48px rgba(8, 10, 16, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.06);
     --radius: 14px;
     --radius-sm: 8px;
   }
 
+  /* ---- Catppuccin Mocha · Blue ---- */
+  :root {
+    --accent: #89b4fa;
+    --accent-glow: rgba(137, 180, 250, 0.25);
+    --accent-soft: rgba(137, 180, 250, 0.15);
+    --accent-faint: rgba(137, 180, 250, 0.06);
+    --accent2: #a6e3a1;
+    --accent2-glow: rgba(166, 227, 161, 0.22);
+    --accent2-soft: rgba(166, 227, 161, 0.13);
+    --purple: #b4befe;
+    --purple-glow: rgba(180, 190, 254, 0.22);
+    --purple-soft: rgba(180, 190, 254, 0.13);
+    --grad-1: #89b4fa;
+    --grad-2: #b4befe;
+    --grad-3: #a6e3a1;
+    --bg-glow-1: rgba(137, 180, 250, 0.07);
+    --bg-glow-2: rgba(180, 190, 254, 0.06);
+    --md-strong: #f9e2af;
+    --scrollbar-thumb: rgba(137, 180, 250, 0.3);
+    --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2389b4fa' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  }
+
+  /* ---- Catppuccin Macchiato (flavor base) ---- */
+  [data-theme="macchiato"] {
+    --bg: #24273a;
+    --card: rgba(54, 58, 79, 0.85);
+    --border: rgba(147, 154, 183, 0.16);
+    --border-hover: rgba(147, 154, 183, 0.4);
+    --text: #cad3f5;
+    --muted: #8087a2;
+    --danger: #ed8796;
+    --danger-glow: rgba(237, 135, 150, 0.25);
+    --danger-soft: rgba(237, 135, 150, 0.1);
+    --active-text: #cad3f5;
+    --panel-bg: rgba(30, 32, 48, 0.55);
+    --row-bg: rgba(54, 58, 79, 0.45);
+    --section-bg: rgba(54, 58, 79, 0.38);
+    --input-bg: rgba(24, 25, 38, 0.55);
+    --result-bg: rgba(24, 25, 38, 0.5);
+    --upload-bg: rgba(54, 58, 79, 0.32);
+    --option-bg: #363a4f;
+    --md-li: #a5adcb;
+    --card-hover-border: rgba(147, 154, 183, 0.4);
+    --card-shadow: 0 4px 26px rgba(8, 10, 16, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    --card-hover-shadow: 0 16px 48px rgba(8, 10, 16, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  }
+
+  /* ---- Catppuccin Frappe (flavor base) ---- */
+  [data-theme="frappe"] {
+    --bg: #303446;
+    --card: rgba(65, 69, 89, 0.85);
+    --border: rgba(148, 156, 187, 0.16);
+    --border-hover: rgba(148, 156, 187, 0.4);
+    --text: #c6d0f5;
+    --muted: #838ba7;
+    --danger: #e78284;
+    --danger-glow: rgba(231, 130, 132, 0.25);
+    --danger-soft: rgba(231, 130, 132, 0.1);
+    --active-text: #c6d0f5;
+    --panel-bg: rgba(41, 44, 60, 0.55);
+    --row-bg: rgba(65, 69, 89, 0.45);
+    --section-bg: rgba(65, 69, 89, 0.38);
+    --input-bg: rgba(35, 38, 52, 0.55);
+    --result-bg: rgba(35, 38, 52, 0.5);
+    --upload-bg: rgba(65, 69, 89, 0.32);
+    --option-bg: #414559;
+    --md-li: #a5adce;
+    --card-hover-border: rgba(148, 156, 187, 0.4);
+    --card-shadow: 0 4px 26px rgba(8, 10, 16, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    --card-hover-shadow: 0 16px 48px rgba(8, 10, 16, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  }
+
+  /* ---- Catppuccin Latte (flavor base) ---- */
+  [data-theme="latte"] {
+    --bg: #eff1f5;
+    --card: rgba(204, 208, 218, 0.72);
+    --border: rgba(124, 127, 147, 0.28);
+    --border-hover: rgba(124, 127, 147, 0.55);
+    --text: #4c4f69;
+    --muted: #6c6f85;
+    --danger: #d20f39;
+    --danger-glow: rgba(210, 15, 57, 0.25);
+    --danger-soft: rgba(210, 15, 57, 0.1);
+    --active-text: #4c4f69;
+    --panel-bg: rgba(230, 233, 239, 0.9);
+    --row-bg: rgba(204, 208, 218, 0.55);
+    --section-bg: rgba(204, 208, 218, 0.4);
+    --input-bg: rgba(255, 255, 255, 0.95);
+    --result-bg: rgba(255, 255, 255, 0.85);
+    --upload-bg: rgba(204, 208, 218, 0.4);
+    --option-bg: #ffffff;
+    --md-li: #5c5f77;
+    --card-hover-border: rgba(124, 127, 147, 0.55);
+    --card-shadow: 0 4px 26px rgba(40, 50, 90, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    --card-hover-shadow: 0 16px 40px rgba(40, 50, 90, 0.13), inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  }
+
+  /* ---- Catppuccin Mocha · Blue ---- */
+  [data-theme="mocha"][data-accent="blue"] {
+    --accent: #89b4fa;
+    --accent-glow: rgba(137, 180, 250, 0.25);
+    --accent-soft: rgba(137, 180, 250, 0.15);
+    --accent-faint: rgba(137, 180, 250, 0.06);
+    --accent2: #a6e3a1;
+    --accent2-glow: rgba(166, 227, 161, 0.22);
+    --accent2-soft: rgba(166, 227, 161, 0.13);
+    --purple: #b4befe;
+    --purple-glow: rgba(180, 190, 254, 0.22);
+    --purple-soft: rgba(180, 190, 254, 0.13);
+    --grad-1: #89b4fa;
+    --grad-2: #b4befe;
+    --grad-3: #a6e3a1;
+    --bg-glow-1: rgba(137, 180, 250, 0.07);
+    --bg-glow-2: rgba(180, 190, 254, 0.06);
+    --md-strong: #f9e2af;
+    --scrollbar-thumb: rgba(137, 180, 250, 0.3);
+    --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2389b4fa' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  }
+
+  /* ---- Catppuccin Mocha · Mauve ---- */
+  [data-theme="mocha"][data-accent="mauve"] {
+    --accent: #cba6f7;
+    --accent-glow: rgba(203, 166, 247, 0.25);
+    --accent-soft: rgba(203, 166, 247, 0.15);
+    --accent-faint: rgba(203, 166, 247, 0.06);
+    --accent2: #94e2d5;
+    --accent2-glow: rgba(148, 226, 213, 0.22);
+    --accent2-soft: rgba(148, 226, 213, 0.13);
+    --purple: #f5c2e7;
+    --purple-glow: rgba(245, 194, 231, 0.22);
+    --purple-soft: rgba(245, 194, 231, 0.13);
+    --grad-1: #cba6f7;
+    --grad-2: #f5c2e7;
+    --grad-3: #94e2d5;
+    --bg-glow-1: rgba(203, 166, 247, 0.07);
+    --bg-glow-2: rgba(245, 194, 231, 0.06);
+    --md-strong: #f9e2af;
+    --scrollbar-thumb: rgba(203, 166, 247, 0.3);
+    --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23cba6f7' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  }
+
+  /* ---- Catppuccin Mocha · Peach ---- */
+  [data-theme="mocha"][data-accent="peach"] {
+    --accent: #fab387;
+    --accent-glow: rgba(250, 179, 135, 0.25);
+    --accent-soft: rgba(250, 179, 135, 0.15);
+    --accent-faint: rgba(250, 179, 135, 0.06);
+    --accent2: #94e2d5;
+    --accent2-glow: rgba(148, 226, 213, 0.22);
+    --accent2-soft: rgba(148, 226, 213, 0.13);
+    --purple: #f2cdcd;
+    --purple-glow: rgba(242, 205, 205, 0.22);
+    --purple-soft: rgba(242, 205, 205, 0.13);
+    --grad-1: #fab387;
+    --grad-2: #f2cdcd;
+    --grad-3: #94e2d5;
+    --bg-glow-1: rgba(250, 179, 135, 0.07);
+    --bg-glow-2: rgba(242, 205, 205, 0.06);
+    --md-strong: #f9e2af;
+    --scrollbar-thumb: rgba(250, 179, 135, 0.3);
+    --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23fab387' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  }
+
+  /* ---- Catppuccin Macchiato · Blue ---- */
+  [data-theme="macchiato"][data-accent="blue"] {
+    --accent: #8aadf4;
+    --accent-glow: rgba(138, 173, 244, 0.25);
+    --accent-soft: rgba(138, 173, 244, 0.15);
+    --accent-faint: rgba(138, 173, 244, 0.06);
+    --accent2: #a6da95;
+    --accent2-glow: rgba(166, 218, 149, 0.22);
+    --accent2-soft: rgba(166, 218, 149, 0.13);
+    --purple: #b7bdf8;
+    --purple-glow: rgba(183, 189, 248, 0.22);
+    --purple-soft: rgba(183, 189, 248, 0.13);
+    --grad-1: #8aadf4;
+    --grad-2: #b7bdf8;
+    --grad-3: #a6da95;
+    --bg-glow-1: rgba(138, 173, 244, 0.07);
+    --bg-glow-2: rgba(183, 189, 248, 0.06);
+    --md-strong: #eed49f;
+    --scrollbar-thumb: rgba(138, 173, 244, 0.3);
+    --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238aadf4' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  }
+
+  /* ---- Catppuccin Macchiato · Mauve ---- */
+  [data-theme="macchiato"][data-accent="mauve"] {
+    --accent: #c6a0f6;
+    --accent-glow: rgba(198, 160, 246, 0.25);
+    --accent-soft: rgba(198, 160, 246, 0.15);
+    --accent-faint: rgba(198, 160, 246, 0.06);
+    --accent2: #8bd5ca;
+    --accent2-glow: rgba(139, 213, 202, 0.22);
+    --accent2-soft: rgba(139, 213, 202, 0.13);
+    --purple: #f5bde6;
+    --purple-glow: rgba(245, 189, 230, 0.22);
+    --purple-soft: rgba(245, 189, 230, 0.13);
+    --grad-1: #c6a0f6;
+    --grad-2: #f5bde6;
+    --grad-3: #8bd5ca;
+    --bg-glow-1: rgba(198, 160, 246, 0.07);
+    --bg-glow-2: rgba(245, 189, 230, 0.06);
+    --md-strong: #eed49f;
+    --scrollbar-thumb: rgba(198, 160, 246, 0.3);
+    --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23c6a0f6' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  }
+
+  /* ---- Catppuccin Macchiato · Peach ---- */
+  [data-theme="macchiato"][data-accent="peach"] {
+    --accent: #f5a97f;
+    --accent-glow: rgba(245, 169, 127, 0.25);
+    --accent-soft: rgba(245, 169, 127, 0.15);
+    --accent-faint: rgba(245, 169, 127, 0.06);
+    --accent2: #8bd5ca;
+    --accent2-glow: rgba(139, 213, 202, 0.22);
+    --accent2-soft: rgba(139, 213, 202, 0.13);
+    --purple: #f0c6c6;
+    --purple-glow: rgba(240, 198, 198, 0.22);
+    --purple-soft: rgba(240, 198, 198, 0.13);
+    --grad-1: #f5a97f;
+    --grad-2: #f0c6c6;
+    --grad-3: #8bd5ca;
+    --bg-glow-1: rgba(245, 169, 127, 0.07);
+    --bg-glow-2: rgba(240, 198, 198, 0.06);
+    --md-strong: #eed49f;
+    --scrollbar-thumb: rgba(245, 169, 127, 0.3);
+    --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23f5a97f' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  }
+
+  /* ---- Catppuccin Frappe · Blue ---- */
+  [data-theme="frappe"][data-accent="blue"] {
+    --accent: #8caaee;
+    --accent-glow: rgba(140, 170, 238, 0.25);
+    --accent-soft: rgba(140, 170, 238, 0.15);
+    --accent-faint: rgba(140, 170, 238, 0.06);
+    --accent2: #a6d189;
+    --accent2-glow: rgba(166, 209, 137, 0.22);
+    --accent2-soft: rgba(166, 209, 137, 0.13);
+    --purple: #babbf1;
+    --purple-glow: rgba(186, 187, 241, 0.22);
+    --purple-soft: rgba(186, 187, 241, 0.13);
+    --grad-1: #8caaee;
+    --grad-2: #babbf1;
+    --grad-3: #a6d189;
+    --bg-glow-1: rgba(140, 170, 238, 0.07);
+    --bg-glow-2: rgba(186, 187, 241, 0.06);
+    --md-strong: #e5c890;
+    --scrollbar-thumb: rgba(140, 170, 238, 0.3);
+    --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238caaee' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  }
+
+  /* ---- Catppuccin Frappe · Mauve ---- */
+  [data-theme="frappe"][data-accent="mauve"] {
+    --accent: #ca9ee6;
+    --accent-glow: rgba(202, 158, 230, 0.25);
+    --accent-soft: rgba(202, 158, 230, 0.15);
+    --accent-faint: rgba(202, 158, 230, 0.06);
+    --accent2: #81c8be;
+    --accent2-glow: rgba(129, 200, 190, 0.22);
+    --accent2-soft: rgba(129, 200, 190, 0.13);
+    --purple: #f4b8e4;
+    --purple-glow: rgba(244, 184, 228, 0.22);
+    --purple-soft: rgba(244, 184, 228, 0.13);
+    --grad-1: #ca9ee6;
+    --grad-2: #f4b8e4;
+    --grad-3: #81c8be;
+    --bg-glow-1: rgba(202, 158, 230, 0.07);
+    --bg-glow-2: rgba(244, 184, 228, 0.06);
+    --md-strong: #e5c890;
+    --scrollbar-thumb: rgba(202, 158, 230, 0.3);
+    --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ca9ee6' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  }
+
+  /* ---- Catppuccin Frappe · Peach ---- */
+  [data-theme="frappe"][data-accent="peach"] {
+    --accent: #ef9f76;
+    --accent-glow: rgba(239, 159, 118, 0.25);
+    --accent-soft: rgba(239, 159, 118, 0.15);
+    --accent-faint: rgba(239, 159, 118, 0.06);
+    --accent2: #81c8be;
+    --accent2-glow: rgba(129, 200, 190, 0.22);
+    --accent2-soft: rgba(129, 200, 190, 0.13);
+    --purple: #eebebe;
+    --purple-glow: rgba(238, 190, 190, 0.22);
+    --purple-soft: rgba(238, 190, 190, 0.13);
+    --grad-1: #ef9f76;
+    --grad-2: #eebebe;
+    --grad-3: #81c8be;
+    --bg-glow-1: rgba(239, 159, 118, 0.07);
+    --bg-glow-2: rgba(238, 190, 190, 0.06);
+    --md-strong: #e5c890;
+    --scrollbar-thumb: rgba(239, 159, 118, 0.3);
+    --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ef9f76' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  }
+
+  /* ---- Catppuccin Latte · Blue ---- */
+  [data-theme="latte"][data-accent="blue"] {
+    --accent: #1e66f5;
+    --accent-glow: rgba(30, 102, 245, 0.22);
+    --accent-soft: rgba(30, 102, 245, 0.13);
+    --accent-faint: rgba(30, 102, 245, 0.05);
+    --accent2: #40a02b;
+    --accent2-glow: rgba(64, 160, 43, 0.22);
+    --accent2-soft: rgba(64, 160, 43, 0.13);
+    --purple: #7287fd;
+    --purple-glow: rgba(114, 135, 253, 0.22);
+    --purple-soft: rgba(114, 135, 253, 0.13);
+    --grad-1: #1e66f5;
+    --grad-2: #7287fd;
+    --grad-3: #40a02b;
+    --bg-glow-1: rgba(30, 102, 245, 0.09);
+    --bg-glow-2: rgba(114, 135, 253, 0.07);
+    --md-strong: #df8e1d;
+    --scrollbar-thumb: rgba(30, 102, 245, 0.3);
+    --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%231e66f5' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  }
+
+  /* ---- Catppuccin Latte · Mauve ---- */
+  [data-theme="latte"][data-accent="mauve"] {
+    --accent: #8839ef;
+    --accent-glow: rgba(136, 57, 239, 0.22);
+    --accent-soft: rgba(136, 57, 239, 0.13);
+    --accent-faint: rgba(136, 57, 239, 0.05);
+    --accent2: #179299;
+    --accent2-glow: rgba(23, 146, 153, 0.22);
+    --accent2-soft: rgba(23, 146, 153, 0.13);
+    --purple: #ea76cb;
+    --purple-glow: rgba(234, 118, 203, 0.22);
+    --purple-soft: rgba(234, 118, 203, 0.13);
+    --grad-1: #8839ef;
+    --grad-2: #ea76cb;
+    --grad-3: #179299;
+    --bg-glow-1: rgba(136, 57, 239, 0.09);
+    --bg-glow-2: rgba(234, 118, 203, 0.07);
+    --md-strong: #df8e1d;
+    --scrollbar-thumb: rgba(136, 57, 239, 0.3);
+    --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238839ef' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  }
+
+  /* ---- Catppuccin Latte · Peach ---- */
+  [data-theme="latte"][data-accent="peach"] {
+    --accent: #fe640b;
+    --accent-glow: rgba(254, 100, 11, 0.22);
+    --accent-soft: rgba(254, 100, 11, 0.13);
+    --accent-faint: rgba(254, 100, 11, 0.05);
+    --accent2: #179299;
+    --accent2-glow: rgba(23, 146, 153, 0.22);
+    --accent2-soft: rgba(23, 146, 153, 0.13);
+    --purple: #dd7878;
+    --purple-glow: rgba(221, 120, 120, 0.22);
+    --purple-soft: rgba(221, 120, 120, 0.13);
+    --grad-1: #fe640b;
+    --grad-2: #dd7878;
+    --grad-3: #179299;
+    --bg-glow-1: rgba(254, 100, 11, 0.09);
+    --bg-glow-2: rgba(221, 120, 120, 0.07);
+    --md-strong: #df8e1d;
+    --scrollbar-thumb: rgba(254, 100, 11, 0.3);
+    --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23fe640b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  }
+
   * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  ::selection { background: var(--accent-soft); color: var(--text); }
+
+  button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
 
   body {
     font-family: "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -35,16 +411,34 @@
     justify-content: center;
     padding: 20px;
     background-image:
-      radial-gradient(ellipse at 50% 0%, rgba(0, 212, 255, 0.04) 0%, transparent 60%),
-      radial-gradient(ellipse at 85% 100%, rgba(168, 85, 247, 0.03) 0%, transparent 50%);
+      radial-gradient(ellipse at 50% 0%, var(--bg-glow-1) 0%, transparent 60%),
+      radial-gradient(ellipse at 85% 100%, var(--bg-glow-2) 0%, transparent 50%);
+    transition: background-color 0.5s ease, color 0.5s ease;
   }
 
   .container {
     width: 100%;
-    max-width: 720px;
+    max-width: 1560px;
     display: flex;
     flex-direction: column;
     gap: 18px;
+  }
+
+  /* ---- Two-column layout on wide screens ---- */
+  .main-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: 18px;
+    align-items: start;
+  }
+  .side-col {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    min-width: 0;
+  }
+  @media (max-width: 920px) {
+    .main-grid { grid-template-columns: 1fr; }
   }
 
   /* ---- Header ---- */
@@ -56,10 +450,16 @@
     font-size: 1.6rem;
     font-weight: 700;
     letter-spacing: 0.04em;
-    background: linear-gradient(135deg, #00d4ff 0%, #a855f7 50%, #00e676 100%);
+    background: linear-gradient(135deg, var(--grad-1) 0%, var(--grad-2) 50%, var(--grad-3) 100%);
+    background-size: 200% 200%;
+    animation: gradientShift 14s ease infinite;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+  }
+  @keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
   }
   .header p {
     color: var(--muted);
@@ -67,6 +467,66 @@
     margin-top: 6px;
     letter-spacing: 0.06em;
     font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+  }
+
+  /* ---- Theme picker ---- */
+  .theme-picker {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    align-items: center;
+    margin-top: 14px;
+  }
+  .theme-picker .theme-label {
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-right: 2px;
+  }
+  .theme-dot {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    position: relative;
+    box-shadow: 0 0 0 1px var(--border), 0 2px 8px rgba(0, 0, 0, 0.25);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .theme-dot:hover { transform: scale(1.22); }
+  .theme-sep {
+    width: 1px;
+    height: 16px;
+    background: var(--border);
+    align-self: center;
+  }
+  .flavor-label {
+    font-size: 0.62rem;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    align-self: center;
+    margin: 0 2px;
+  }
+  .theme-dot[data-theme="catppuccin"] { background: conic-gradient(#89b4fa, #a6e3a1, #fab387, #cba6f7, #89b4fa); }
+  .theme-dot[data-theme="mocha-blue"] { background: radial-gradient(circle at 32% 30%, #89b4fa, #89b4fa 45%, #1e1e2e 88%); }
+  .theme-dot[data-theme="mocha-mauve"] { background: radial-gradient(circle at 32% 30%, #cba6f7, #cba6f7 45%, #1e1e2e 88%); }
+  .theme-dot[data-theme="mocha-peach"] { background: radial-gradient(circle at 32% 30%, #fab387, #fab387 45%, #1e1e2e 88%); }
+  .theme-dot[data-theme="macchiato-blue"] { background: radial-gradient(circle at 32% 30%, #8aadf4, #8aadf4 45%, #24273a 88%); }
+  .theme-dot[data-theme="macchiato-mauve"] { background: radial-gradient(circle at 32% 30%, #c6a0f6, #c6a0f6 45%, #24273a 88%); }
+  .theme-dot[data-theme="macchiato-peach"] { background: radial-gradient(circle at 32% 30%, #f5a97f, #f5a97f 45%, #24273a 88%); }
+  .theme-dot[data-theme="frappe-blue"] { background: radial-gradient(circle at 32% 30%, #8caaee, #8caaee 45%, #303446 88%); }
+  .theme-dot[data-theme="frappe-mauve"] { background: radial-gradient(circle at 32% 30%, #ca9ee6, #ca9ee6 45%, #303446 88%); }
+  .theme-dot[data-theme="frappe-peach"] { background: radial-gradient(circle at 32% 30%, #ef9f76, #ef9f76 45%, #303446 88%); }
+  .theme-dot[data-theme="latte-blue"] { background: radial-gradient(circle at 32% 30%, #1e66f5, #1e66f5 45%, #eff1f5 88%); }
+  .theme-dot[data-theme="latte-mauve"] { background: radial-gradient(circle at 32% 30%, #8839ef, #8839ef 45%, #eff1f5 88%); }
+  .theme-dot[data-theme="latte-peach"] { background: radial-gradient(circle at 32% 30%, #fe640b, #fe640b 45%, #eff1f5 88%); }
+
+  .theme-dot.active {
+    transform: scale(1.12);
+    box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent), 0 0 14px var(--accent-glow);
   }
 
   /* ---- Cards ---- */
@@ -77,23 +537,26 @@
     padding: 24px;
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.02);
-    transition: border-color 0.3s ease;
+    box-shadow: var(--card-shadow);
+    transition: background-color 0.5s ease, border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
   }
   .card:hover {
-    border-color: rgba(0, 212, 255, 0.2);
+    border-color: var(--card-hover-border);
+    transform: translateY(-2px);
+    box-shadow: var(--card-hover-shadow);
   }
 
   /* ---- Mode Toggle ---- */
   .mode-toggle {
     display: flex;
-    background: rgba(0, 0, 0, 0.4);
+    background: var(--panel-bg);
     border: 1px solid var(--border);
     border-radius: 10px;
     overflow: hidden;
     width: fit-content;
     margin: 0 auto;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+    transition: background-color 0.5s ease;
   }
   .mode-toggle button {
     padding: 9px 28px;
@@ -108,12 +571,13 @@
     position: relative;
   }
   .mode-toggle button.active {
-    background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(168, 85, 247, 0.15));
-    color: #fff;
-    box-shadow: inset 0 0 20px rgba(0, 212, 255, 0.1);
+    background: linear-gradient(135deg, var(--accent-soft), var(--purple-soft));
+    color: var(--active-text);
+    box-shadow: inset 0 0 20px var(--accent-faint);
   }
   .mode-toggle button:not(.active):hover {
-    color: #aaa;
+    color: var(--text);
+    opacity: 0.8;
   }
 
   /* ---- Record area ---- */
@@ -129,13 +593,29 @@
     height: 112px;
     border-radius: 50%;
     border: 2px solid var(--border);
-    background: radial-gradient(circle at 50% 40%, rgba(0, 212, 255, 0.06) 0%, transparent 70%);
+    background: radial-gradient(circle at 50% 40%, var(--accent-soft) 0%, transparent 70%);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
+  }
+  .record-btn::before {
+    content: '';
+    position: absolute;
+    inset: -10px;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, transparent 0 68%, var(--danger) 84%, transparent 96%);
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+    mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+  .record-btn.recording::before {
+    opacity: 1;
+    animation: spin 2.2s linear infinite;
   }
   .record-btn::after {
     content: '';
@@ -147,17 +627,17 @@
   }
   .record-btn:hover {
     border-color: var(--accent);
-    box-shadow: 0 0 30px var(--accent-glow), 0 0 60px rgba(0, 212, 255, 0.1);
+    box-shadow: 0 0 30px var(--accent-glow), 0 0 60px var(--accent-faint);
     transform: scale(1.05);
   }
   .record-btn:hover::after {
-    border-color: rgba(0, 212, 255, 0.2);
+    border-color: var(--accent-soft);
   }
   .record-btn.recording {
     border-color: var(--danger);
-    background: radial-gradient(circle at 50% 40%, rgba(255, 59, 92, 0.1) 0%, transparent 70%);
+    background: radial-gradient(circle at 50% 40%, var(--danger-soft) 0%, transparent 70%);
     animation: pulse 1.6s ease-in-out infinite;
-    box-shadow: 0 0 30px var(--danger-glow), 0 0 60px rgba(255, 59, 92, 0.15);
+    box-shadow: 0 0 30px var(--danger-glow), 0 0 60px var(--danger-soft);
   }
   .record-btn:disabled {
     opacity: 0.4;
@@ -167,8 +647,8 @@
   }
 
   @keyframes pulse {
-    0%, 100% { box-shadow: 0 0 20px var(--danger-glow), 0 0 40px rgba(255, 59, 92, 0.12); }
-    50% { box-shadow: 0 0 40px var(--danger-glow), 0 0 80px rgba(255, 59, 92, 0.25); }
+    0%, 100% { box-shadow: 0 0 20px var(--danger-glow), 0 0 40px var(--danger-soft); }
+    50% { box-shadow: 0 0 40px var(--danger-glow), 0 0 80px var(--danger-soft); }
   }
 
   .record-btn svg {
@@ -223,9 +703,10 @@
     align-items: center;
     margin-top: 14px;
     padding: 14px 16px;
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--row-bg);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
+    transition: background-color 0.5s ease;
   }
   .summary-type-row label {
     font-size: 0.78rem;
@@ -235,7 +716,7 @@
     text-transform: uppercase;
   }
   .summary-type-row select, .summary-type-row input {
-    background: rgba(0, 0, 0, 0.35);
+    background: var(--input-bg);
     border: 1px solid var(--border);
     border-radius: 6px;
     color: var(--text);
@@ -249,7 +730,7 @@
     box-shadow: 0 0 12px var(--accent-glow);
   }
   .summary-type-row select {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2300d4ff' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-image: var(--select-arrow);
     background-repeat: no-repeat;
     background-position: right 10px center;
     padding-right: 28px;
@@ -258,7 +739,7 @@
     cursor: pointer;
   }
   .summary-type-row select option {
-    background: #0d0d24;
+    background: var(--option-bg);
     color: var(--text);
   }
 
@@ -279,7 +760,7 @@
     letter-spacing: 0.02em;
   }
   .settings select, .settings input {
-    background: rgba(0, 0, 0, 0.35);
+    background: var(--input-bg);
     border: 1px solid var(--border);
     border-radius: 6px;
     color: var(--text);
@@ -320,7 +801,7 @@
   .config-row input {
     flex: 1;
     min-width: 160px;
-    background: rgba(0, 0, 0, 0.35);
+    background: var(--input-bg);
     border: 1px solid var(--border);
     border-radius: 6px;
     color: var(--text);
@@ -339,7 +820,7 @@
   }
 
   .config-row select {
-    background: rgba(0, 0, 0, 0.35);
+    background: var(--input-bg);
     border: 1px solid var(--border);
     border-radius: 6px;
     color: var(--text);
@@ -347,13 +828,33 @@
     font-size: 0.8rem;
     outline: none;
   }
+  .config-row textarea {
+    flex: 1;
+    min-width: 160px;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    padding: 8px 10px;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    outline: none;
+    resize: vertical;
+    font-family: inherit;
+    transition: all 0.25s ease;
+  }
+  .config-row textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 12px var(--accent-glow);
+  }
 
   /* ---- Config section ---- */
   .config-section {
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     padding: 14px;
-    background: rgba(0, 0, 0, 0.15);
+    background: var(--section-bg);
+    transition: background-color 0.5s ease;
   }
   .config-section .section-title {
     font-size: 0.75rem;
@@ -388,11 +889,12 @@
     border-color: var(--purple);
     color: var(--purple);
     box-shadow: 0 0 14px var(--purple-glow);
+    transform: translateY(-1px);
   }
   .provider-chip.active {
-    background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(0, 212, 255, 0.1));
+    background: linear-gradient(135deg, var(--purple-soft), var(--accent-soft));
     border-color: var(--purple);
-    color: #fff;
+    color: var(--active-text);
     box-shadow: 0 0 16px var(--purple-glow);
   }
 
@@ -421,7 +923,7 @@
     box-shadow: 0 0 8px var(--accent-glow);
   }
   .result-text {
-    background: rgba(0, 0, 0, 0.3);
+    background: var(--result-bg);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     padding: 16px;
@@ -431,6 +933,7 @@
     word-break: break-word;
     max-height: 400px;
     overflow-y: auto;
+    transition: background-color 0.5s ease;
   }
   .result-text::-webkit-scrollbar,
   .result-textarea::-webkit-scrollbar {
@@ -438,11 +941,11 @@
   }
   .result-text::-webkit-scrollbar-thumb,
   .result-textarea::-webkit-scrollbar-thumb {
-    background: rgba(0, 212, 255, 0.2);
+    background: var(--scrollbar-thumb);
     border-radius: 2px;
   }
   .result-textarea {
-    background: rgba(0, 0, 0, 0.3);
+    background: var(--result-bg);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     padding: 16px;
@@ -456,7 +959,7 @@
     font-family: inherit;
     outline: none;
     box-sizing: border-box;
-    transition: all 0.25s ease;
+    transition: all 0.25s ease, background-color 0.5s ease;
   }
   .result-textarea:focus {
     border-color: var(--accent);
@@ -471,8 +974,8 @@
   .result-text.summary-md h2 { font-size: 0.95rem; color: var(--accent); margin: 14px 0 6px; }
   .result-text.summary-md h3 { font-size: 0.85rem; color: var(--purple); margin: 10px 0 4px; }
   .result-text.summary-md ul { padding-left: 16px; margin: 4px 0; }
-  .result-text.summary-md li { margin: 3px 0; color: #c0c8d8; }
-  .result-text.summary-md strong { color: #f0d060; }
+  .result-text.summary-md li { margin: 3px 0; color: var(--md-li); }
+  .result-text.summary-md strong { color: var(--md-strong); }
   .result-text.summary-md p { margin: 4px 0; }
 
   .copy-btn {
@@ -490,7 +993,9 @@
   .copy-btn:hover {
     border-color: var(--accent);
     color: var(--accent);
+    background: var(--accent-faint);
     box-shadow: 0 0 14px var(--accent-glow);
+    transform: translateY(-1px);
   }
 
   /* ---- Test button ---- */
@@ -506,7 +1011,7 @@
     transition: all 0.2s ease;
     white-space: nowrap;
   }
-  .test-btn:hover { border-color: var(--accent2); color: var(--accent2); box-shadow: 0 0 10px var(--accent2-glow); }
+  .test-btn:hover { border-color: var(--accent2); color: var(--accent2); background: var(--accent2-soft); box-shadow: 0 0 10px var(--accent2-glow); }
   .test-btn:disabled { opacity: 0.4; cursor: not-allowed; }
   .test-btn.success { border-color: var(--accent2); color: var(--accent2); box-shadow: 0 0 12px var(--accent2-glow); }
   .test-btn.fail { border-color: var(--danger); color: var(--danger); box-shadow: 0 0 12px var(--danger-glow); }
@@ -527,7 +1032,7 @@
     border-radius: 6px;
   }
   .history-item:hover {
-    background: rgba(0, 212, 255, 0.03);
+    background: var(--accent-faint);
     padding-left: 10px;
   }
   .history-item:last-child { border-bottom: none; }
@@ -579,7 +1084,7 @@
     display: inline-block;
     width: 18px;
     height: 18px;
-    border: 2px solid rgba(0, 212, 255, 0.15);
+    border: 2px solid var(--accent-soft);
     border-top-color: var(--accent);
     border-radius: 50%;
     animation: spin 0.7s linear infinite;
@@ -608,12 +1113,13 @@
     cursor: pointer;
     transition: all 0.3s ease;
     margin-top: 8px;
-    background: rgba(0, 0, 0, 0.15);
+    background: var(--upload-bg);
   }
   .upload-area:hover, .upload-area.dragover {
     border-color: var(--accent);
-    background: rgba(0, 212, 255, 0.04);
-    box-shadow: 0 0 24px rgba(0, 212, 255, 0.08);
+    background: var(--accent-faint);
+    box-shadow: 0 0 24px var(--accent-faint);
+    transform: translateY(-1px);
   }
   .upload-area input[type="file"] { display: none; }
   .upload-icon {
@@ -623,7 +1129,7 @@
     font-weight: 300;
   }
   .upload-text { font-size: 0.8rem; color: var(--muted); letter-spacing: 0.02em; }
-  .upload-formats { font-size: 0.66rem; color: #444; margin-top: 3px; letter-spacing: 0.02em; }
+  .upload-formats { font-size: 0.66rem; color: var(--muted); opacity: 0.7; margin-top: 3px; letter-spacing: 0.02em; }
 </style>
 </head>
 <body>
@@ -632,10 +1138,39 @@
   <div class="header">
     <h1>语音录制 & 总结</h1>
     <p>录音 → 语音识别 → 自动总结</p>
+    <div class="theme-picker" role="group" aria-label="主题切换">
+      <span class="theme-label">主题</span>
+      <span class="flavor-label">Mocha</span>
+      <button class="theme-dot" data-theme="catppuccin" title="Catppuccin Mocha · Blue"></button>
+      <button class="theme-dot" data-theme="mocha-mauve" title="Catppuccin Mocha · Mauve"></button>
+      <button class="theme-dot" data-theme="mocha-peach" title="Catppuccin Mocha · Peach"></button>
+      <span class="theme-sep"></span>
+      <span class="flavor-label">Macchiato</span>
+      <button class="theme-dot" data-theme="macchiato-blue" title="Catppuccin Macchiato · Blue"></button>
+      <button class="theme-dot" data-theme="macchiato-mauve" title="Catppuccin Macchiato · Mauve"></button>
+      <button class="theme-dot" data-theme="macchiato-peach" title="Catppuccin Macchiato · Peach"></button>
+      <span class="theme-sep"></span>
+      <span class="flavor-label">Frappé</span>
+      <button class="theme-dot" data-theme="frappe-blue" title="Catppuccin Frappé · Blue"></button>
+      <button class="theme-dot" data-theme="frappe-mauve" title="Catppuccin Frappé · Mauve"></button>
+      <button class="theme-dot" data-theme="frappe-peach" title="Catppuccin Frappé · Peach"></button>
+      <span class="theme-sep"></span>
+      <span class="flavor-label">Latte</span>
+      <button class="theme-dot" data-theme="latte-blue" title="Catppuccin Latte · Blue"></button>
+      <button class="theme-dot" data-theme="latte-mauve" title="Catppuccin Latte · Mauve"></button>
+      <button class="theme-dot" data-theme="latte-peach" title="Catppuccin Latte · Peach"></button>
+    </div>
   </div>
+
+  <div class="main-grid">
 
   <div class="card">
     <div class="record-area">
+      <!-- Recognize mode toggle: recording vs streaming -->
+      <div class="mode-toggle" id="recognizeModeToggle" style="margin-bottom:8px;">
+        <button id="btnRecordMode" class="active">录音识别</button>
+        <button id="btnStreamMode">流式识别</button>
+      </div>
       <button class="record-btn" id="recordBtn" title="开始录音">
         <svg viewBox="0 0 24 24">
           <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
@@ -688,12 +1223,19 @@
         </select>
       </label>
       <label>模型路径
-        <input type="text" id="model" value="base" placeholder="base 或 iic/SenseVoiceSmall 或 /path/"
+        <input type="text" id="model" value="iic/SenseVoiceSmall" placeholder="iic/SenseVoiceSmall 或 /path/"
                list="modelSuggestions" style="width:220px;">
         <datalist id="modelSuggestions">
-          <option value="tiny"><option value="base"><option value="small">
-          <option value="medium"><option value="large-v3"><option value="turbo">
           <option value="iic/SenseVoiceSmall">
+        </datalist>
+      </label>
+      <!-- Streaming model input: visible only in streaming mode -->
+      <label id="streamModelLabel" style="display:none;">流式模型
+        <input type="text" id="streamModel" value="paraformer-zh-streaming"
+               placeholder="paraformer-zh-streaming 或 /path/to/model"
+               list="streamModelSuggestions" style="width:220px;">
+        <datalist id="streamModelSuggestions">
+          <option value="paraformer-zh-streaming">
         </datalist>
       </label>
     </div>
@@ -715,8 +1257,7 @@
       <!-- Provider presets -->
       <div class="provider-chips">
         <span style="font-size:0.78rem;color:var(--muted);line-height:28px;">预设:</span>
-        <button class="provider-chip active" data-provider="openai">OpenAI</button>
-        <button class="provider-chip" data-provider="deepseek">DeepSeek</button>
+        <button class="provider-chip active" data-provider="deepseek">DeepSeek</button>
         <button class="provider-chip" data-provider="alibaba">阿里云</button>
         <button class="provider-chip" data-provider="custom">自定义</button>
       </div>
@@ -732,20 +1273,17 @@
         </div>
         <div class="config-row">
           <label>Key</label>
-          <input type="password" id="apiKeyStt" placeholder="留空则使用本地 Whisper" autocomplete="off">
+          <input type="password" id="apiKeyStt" placeholder="留空则使用本地识别引擎" autocomplete="off">
         </div>
         <div class="config-row">
           <label>Base</label>
-          <input type="text" id="apiBaseStt" placeholder="https://api.openai.com/v1">
+          <input type="text" id="apiBaseStt" placeholder="https://dashscope.aliyuncs.com/compatible-mode/v1">
         </div>
         <div class="config-row">
           <label>在线模型</label>
-          <input type="text" id="sttModel" value="whisper-1" placeholder="whisper-1"
+          <input type="text" id="sttModel" value="fun-asr-realtime" placeholder="fun-asr-realtime"
                  list="sttSuggestions">
           <datalist id="sttSuggestions">
-            <option value="whisper-1">
-            <option value="gpt-4o-transcribe">
-            <option value="gpt-4o-mini-transcribe">
             <option value="fun-asr-realtime">
             <option value="paraformer-realtime-v2">
           </datalist>
@@ -770,28 +1308,40 @@
         </div>
         <div class="config-row">
           <label>Base</label>
-          <input type="text" id="apiBaseSummary" placeholder="https://api.deepseek.com/v1">
+          <input type="text" id="apiBaseSummary" placeholder="https://api.deepseek.com">
         </div>
         <div class="config-row">
           <label>模型</label>
-          <input type="text" id="summaryModel" value="deepseek-chat" placeholder="deepseek-chat"
+          <input type="text" id="summaryModel" value="deepseek-v4-flash" placeholder="deepseek-v4-flash"
                  list="summarySuggestions">
           <datalist id="summarySuggestions">
-            <option value="gpt-4o-mini">
-            <option value="gpt-4o">
-            <option value="gpt-3.5-turbo">
-            <option value="deepseek-chat">
-            <option value="deepseek-reasoner">
+            <option value="deepseek-v4-flash">
+            <option value="deepseek-v4-pro">
             <option value="qwen-plus">
+            <option value="glm-4-flash">
             <option value="qwen-max">
             <option value="claude-sonnet-4-7">
           </datalist>
+        </div>
+      </div>
+
+      <!-- Context prompt: user-described situation background for the AI -->
+      <div class="config-section">
+        <div class="section-title">语境提示 (Context)</div>
+        <div class="config-row">
+          <textarea id="contextPrompt" rows="2"
+                    placeholder="例如：这是一次关于 XX 项目的技术评审会，讨论语音识别引擎选型，参会人包括产品、算法和前端同学。"></textarea>
+        </div>
+        <div style="font-size:0.72rem;color:var(--muted);padding-top:6px;">
+          填写当前语境的背景说明。AI 在总结和实时纠错时会结合它，更准确地理解主题、专有名词和上下文
         </div>
       </div>
     </div>
 
     <audio id="audioPlayback" controls style="display:none"></audio>
   </div>
+
+  <div class="side-col">
 
   <div class="card" id="resultCard" style="display:none">
     <div class="result-section">
@@ -805,12 +1355,13 @@
 
     <div class="result-section" style="margin-top: 20px;">
       <h3>总结 <span style="font-size:0.7rem;color:var(--muted);font-weight:400;" id="summaryTypeLabel">(中英双语 · 可编辑)</span></h3>
-      <textarea class="result-textarea" id="summaryText" placeholder="（等待总结结果...）" style="min-height:200px;"></textarea>
-      <div class="result-text summary-md" id="summaryPreview" style="display:none;"></div>
-      <div style="display:flex;gap:8px;margin-top:8px;">
-        <button class="copy-btn" id="previewToggle">预览</button>
+      <div class="result-text summary-md" id="summaryPreview" style="display:block;"></div>
+      <textarea class="result-textarea" id="summaryText" placeholder="（等待总结结果...）" style="min-height:200px;display:none;"></textarea>
+      <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
+        <button class="copy-btn" id="previewToggle">编辑</button>
         <button class="copy-btn" id="copySummaryBtn">复制总结</button>
-        <button class="copy-btn" id="saveSummaryBtn" style="border-color:var(--accent);color:var(--accent);">保存修改</button>
+        <button class="copy-btn" id="downloadSummaryBtn" style="border-color:var(--accent2);color:var(--accent2);">下载 Markdown</button>
+        <button class="copy-btn" id="saveSummaryBtn" style="border-color:var(--accent);color:var(--accent);display:none;">保存修改</button>
       </div>
     </div>
   </div>
@@ -825,9 +1376,42 @@
     </div>
   </div>
 
+  </div><!-- /side-col -->
+  </div><!-- /main-grid -->
+
 </div>
 
 <script>
+// ---- Theme switching ----
+const THEME_KEY = 'voice_tool_theme';
+const THEMES = [
+  'catppuccin', 'mocha-mauve', 'mocha-peach',
+  'macchiato-blue', 'macchiato-mauve', 'macchiato-peach',
+  'frappe-blue', 'frappe-mauve', 'frappe-peach',
+  'latte-blue', 'latte-mauve', 'latte-peach',
+];
+
+function applyTheme(name) {
+  if (!THEMES.includes(name)) name = 'catppuccin';
+  // 'catppuccin' = Mocha Blue; others are <flavor>-<accent>
+  let flavor = 'mocha', accent = 'blue';
+  if (name !== 'catppuccin') {
+    const parts = name.split('-');
+    flavor = parts[0] || 'mocha';
+    accent = parts[1] || 'blue';
+  }
+  document.documentElement.setAttribute('data-theme', flavor);
+  document.documentElement.setAttribute('data-accent', accent);
+  try { localStorage.setItem(THEME_KEY, name); } catch (e) { /* ignore */ }
+  document.querySelectorAll('.theme-dot').forEach(d => {
+    d.classList.toggle('active', d.dataset.theme === name);
+  });
+}
+
+document.querySelectorAll('.theme-dot').forEach(dot => {
+  dot.addEventListener('click', () => applyTheme(dot.dataset.theme));
+});
+
 // ---- DOM refs ----
 const recordBtn = document.getElementById('recordBtn');
 const timerEl = document.getElementById('timer');
@@ -855,23 +1439,40 @@ let mediaRecorder = null;
 let audioChunks = [];
 let timerInterval = null;
 let startTime = 0;
-let currentProvider = 'openai';
+let currentProvider = 'deepseek';
 let currentTimestamp = null;
-let previewVisible = false;
+let previewVisible = true;
+
+// Streaming state
+let recognizeMode = 'record';  // 'record' | 'stream'
+let audioContext = null;
+let scriptProcessor = null;
+let micStream = null;
+let wsConnection = null;
+let isStreaming = false;
+let streamingBaseText = '';  // pre-existing text in textarea before current streaming session
+let rawSessionText = '';      // backend cumulative raw text for THIS session
+let polishedSnapshot = null;  // AI-polished full display text (pause correction)
+let polishedCovers = 0;       // length of rawSessionText already covered by polishedSnapshot
+let correctionTimer = null;   // debounce timer for real-time correction
+let correctionSession = null; // sessionId of the in-flight correction call (null = none)
+let lastCorrectionTime = 0;   // timestamp of last correction to enforce cooldown
+let lastCorrectedLength = 0;  // length of text at last correction to detect change
+let streamSessionId = 0;      // monotonic id; guards stale async callbacks
+let summarizePromise = null;  // in-flight correctThenSummarize chain for the current session
+
+// LLM availability cache for real-time correction during streaming
+let summaryApiState = 'unknown';    // 'unknown' | 'ok' | 'fail'
+let summaryApiProbe = null;         // in-flight probe promise (verdict cached ~5 min)
+let summaryApiFailNotified = false; // warn about unavailable LLM only once per session
 
 // ---- Provider presets ----
 const PROVIDERS = {
-  openai: {
-    apiBaseStt: 'https://api.openai.com/v1',
-    apiBaseSummary: 'https://api.openai.com/v1',
-    sttModel: 'whisper-1',
-    summaryModel: 'gpt-4o-mini',
-  },
   deepseek: {
     apiBaseStt: '',
-    apiBaseSummary: 'https://api.deepseek.com/v1',
+    apiBaseSummary: 'https://api.deepseek.com',
     sttModel: '',
-    summaryModel: 'deepseek-chat',
+    summaryModel: 'deepseek-v4-flash',
   },
   alibaba: {
     apiBaseStt: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
@@ -888,16 +1489,68 @@ const PROVIDERS = {
 };
 
 function applyProvider(provider) {
-  currentProvider = provider;
   const p = PROVIDERS[provider];
+  if (!p) return;  // legacy saved provider (e.g. removed OpenAI)
+  currentProvider = provider;
   if (p.apiBaseStt !== undefined) el('apiBaseStt').value = p.apiBaseStt;
   if (p.apiBaseSummary !== undefined) el('apiBaseSummary').value = p.apiBaseSummary;
   if (p.sttModel !== undefined) el('sttModel').value = p.sttModel;
   if (p.summaryModel !== undefined) el('summaryModel').value = p.summaryModel;
   document.querySelectorAll('.provider-chip').forEach(c => c.classList.remove('active'));
-  document.querySelector(`[data-provider="${provider}"]`).classList.add('active');
+  const chip = document.querySelector(`[data-provider="${provider}"]`);
+  if (chip) chip.classList.add('active');
+  resetSummaryApiState();
   saveSettings();
 }
+
+// ---- Context prompt (用户提供的语境背景) ----
+function getContextPrompt() {
+  return el('contextPrompt').value.trim();
+}
+
+// ---- LLM availability probe (for real-time correction during streaming) ----
+function resetSummaryApiState() {
+  summaryApiState = 'unknown';
+  summaryApiProbe = null;
+  summaryApiFailNotified = false;
+}
+
+// Probe whether the configured summary LLM is reachable. The verdict is
+// cached for a few minutes so each speech pause does not trigger a new
+// network roundtrip. Only fires when a key is configured.
+function probeSummaryApi() {
+  const key = el('apiKeySummary').value.trim();
+  if (!key) { summaryApiState = 'unknown'; return Promise.resolve(false); }
+  if (summaryApiProbe) return summaryApiProbe;
+  summaryApiProbe = (async () => {
+    try {
+      const resp = await fetch('/api/test-connection', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          api_key: key,
+          api_base: el('apiBaseSummary').value,
+          type: 'chat',
+          model: el('summaryModel').value,
+        }),
+      });
+      const data = await resp.json();
+      summaryApiState = data && data.success ? 'ok' : 'fail';
+    } catch (e) {
+      summaryApiState = 'fail';
+    }
+    // Cache the verdict for 5 minutes, then re-verify on next use.
+    setTimeout(() => { summaryApiProbe = null; }, 5 * 60 * 1000);
+    return summaryApiState === 'ok';
+  })();
+  return summaryApiProbe;
+}
+
+// Invalidate the cached availability verdict when LLM settings change
+['apiKeySummary', 'apiBaseSummary', 'summaryModel'].forEach(id => {
+  el(id).addEventListener('change', resetSummaryApiState);
+  el(id).addEventListener('input', resetSummaryApiState);
+});
 
 document.querySelectorAll('.provider-chip').forEach(chip => {
   chip.addEventListener('click', () => applyProvider(chip.dataset.provider));
@@ -921,6 +1574,9 @@ function saveSettings() {
     summaryModel: el('summaryModel').value,
     summaryType: el('summaryType').value,
     summaryTypeCustom: el('summaryTypeCustom').value,
+    contextPrompt: el('contextPrompt').value,
+    recognizeMode,
+    streamModel: el('streamModel').value,
   };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
@@ -940,7 +1596,15 @@ function loadSettings() {
     if (data.sttModel) el('sttModel').value = data.sttModel;
     if (data.apiKeySummary) el('apiKeySummary').value = data.apiKeySummary;
     if (data.apiBaseSummary) el('apiBaseSummary').value = data.apiBaseSummary;
+    // Normalize saved DeepSeek base URLs to the unified no-/v1 format.
+    if (el('apiBaseSummary').value.trim().replace(/\/$/, '') === 'https://api.deepseek.com/v1') {
+      el('apiBaseSummary').value = 'https://api.deepseek.com';
+    }
     if (data.summaryModel) el('summaryModel').value = data.summaryModel;
+    // Migrate retired DeepSeek model names to the current V4 lineup.
+    if (['deepseek-chat', 'deepseek-reasoner'].includes(el('summaryModel').value.trim())) {
+      el('summaryModel').value = 'deepseek-v4-flash';
+    }
     if (data.summaryType) {
       el('summaryType').value = data.summaryType;
       if (data.summaryType === '__custom__') {
@@ -948,6 +1612,9 @@ function loadSettings() {
         if (data.summaryTypeCustom) el('summaryTypeCustom').value = data.summaryTypeCustom;
       }
     }
+    if (data.streamModel) el('streamModel').value = data.streamModel;
+    if (data.contextPrompt) el('contextPrompt').value = data.contextPrompt;
+    if (data.recognizeMode) setRecognizeMode(data.recognizeMode);
   } catch (e) { /* ignore */ }
 }
 
@@ -1009,8 +1676,23 @@ function formatTime(seconds) {
   return `${m}:${s}`;
 }
 
+// Browsers only expose getUserMedia in secure contexts (HTTPS or localhost).
+// Give an actionable hint instead of a cryptic TypeError.
+function requireMediaDevices() {
+  if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) return;
+  const isLocal = ['localhost', '127.0.0.1', '::1'].includes(location.hostname);
+  if (location.protocol === 'http:' && !isLocal) {
+    throw new Error(
+      `浏览器禁止在非加密连接下使用麦克风。请改用 http://127.0.0.1:${location.port}` +
+      `（本机）或 https://${location.hostname}:5443（首次访问需信任自签名证书）打开本页面。`
+    );
+  }
+  throw new Error('当前浏览器环境不支持麦克风访问 (getUserMedia 不可用)，请使用现代浏览器并通过 HTTPS 或 localhost 访问。');
+}
+
 async function startRecording() {
   try {
+    requireMediaDevices();
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
       ? 'audio/webm;codecs=opus' : 'audio/webm';
@@ -1056,12 +1738,686 @@ function stopRecording() {
 }
 
 recordBtn.addEventListener('click', () => {
-  if (mediaRecorder && mediaRecorder.state === 'recording') {
-    stopRecording();
+  if (recognizeMode === 'stream') {
+    // Streaming mode
+    if (isStreaming) {
+      stopStreaming();
+    } else {
+      startStreaming();
+    }
   } else {
-    startRecording();
+    // Recording mode (existing logic)
+    if (mediaRecorder && mediaRecorder.state === 'recording') {
+      stopRecording();
+    } else {
+      startRecording();
+    }
   }
 });
+
+// ---- Recognize mode toggle (record vs stream) ----
+const btnRecordMode = el('btnRecordMode');
+const btnStreamMode = el('btnStreamMode');
+const streamModelLabel = el('streamModelLabel');
+
+let _modelPreloaded = false;      // tracks if current model is already loaded
+let _preloadedModelPath = '';      // path of the currently loaded model
+let _preloadAbort = null;          // to cancel in-progress preloads
+
+async function preloadStreamingModel() {
+  const modelPath = el('streamModel').value.trim();
+  if (!modelPath) return;
+  // Skip if already loaded with the same path
+  if (_modelPreloaded && _preloadedModelPath === modelPath) return;
+
+  // Cancel any in-progress preload
+  if (_preloadAbort) { _preloadAbort.abort(); }
+  _preloadAbort = new AbortController();
+
+  statusEl.innerHTML = '<span class="spinner"></span>正在预加载流式模型，首次可能需要下载...';
+  recordBtn.disabled = true;
+
+  try {
+    const resp = await fetch('/api/preload-streaming-model', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: modelPath }),
+      signal: _preloadAbort.signal,
+    });
+    // Guard against non-JSON responses (e.g. Flask debug error pages)
+    const contentType = resp.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      statusEl.textContent = '模型预加载失败：服务器返回了非 JSON 响应 (HTTP ' + resp.status + ')';
+      _modelPreloaded = false;
+      return;
+    }
+    const data = await resp.json();
+    if (data.success) {
+      _modelPreloaded = true;
+      _preloadedModelPath = modelPath;
+      if (!isStreaming && !(mediaRecorder && mediaRecorder.state === 'recording')) {
+        statusEl.textContent = '流式模型已就绪，点击麦克风开始实时识别';
+      }
+    } else {
+      statusEl.textContent = '模型加载失败: ' + (data.error || '未知错误');
+      _modelPreloaded = false;
+    }
+  } catch (err) {
+    if (err.name !== 'AbortError') {
+      statusEl.textContent = '模型预加载请求失败: ' + err.message;
+      _modelPreloaded = false;
+    }
+  } finally {
+    recordBtn.disabled = false;
+    _preloadAbort = null;
+  }
+}
+
+// Debounce helper for model path input changes
+let _preloadTimer = null;
+function schedulePreload() {
+  clearTimeout(_preloadTimer);
+  _preloadTimer = setTimeout(() => {
+    if (recognizeMode === 'stream' && (mode === 'local' || mode === 'hybrid')) {
+      _modelPreloaded = false;  // path changed, need to reload
+      preloadStreamingModel();
+    }
+  }, 1500);  // 1.5s debounce
+}
+
+function setRecognizeMode(newMode) {
+  recognizeMode = newMode;
+  btnRecordMode.classList.toggle('active', newMode === 'record');
+  btnStreamMode.classList.toggle('active', newMode === 'stream');
+  // Show streaming model input only in stream mode + local/hybrid
+  const showStreamModel = (newMode === 'stream' && (mode === 'local' || mode === 'hybrid'));
+  streamModelLabel.style.display = showStreamModel ? '' : 'none';
+  // Update status text
+  if (!isStreaming && !(mediaRecorder && mediaRecorder.state === 'recording')) {
+    statusEl.textContent = newMode === 'stream'
+      ? '流式模式：点击麦克风开始实时识别'
+      : '准备就绪，点击麦克风开始录音';
+  }
+  saveSettings();
+  // Auto-preload model when switching to stream mode (local/hybrid only)
+  if (newMode === 'stream' && showStreamModel && !_modelPreloaded) {
+    preloadStreamingModel();
+  }
+}
+
+btnRecordMode.addEventListener('click', () => setRecognizeMode('record'));
+btnStreamMode.addEventListener('click', () => setRecognizeMode('stream'));
+
+// Trigger preload when stream model path changes
+el('streamModel').addEventListener('input', schedulePreload);
+el('streamModel').addEventListener('change', schedulePreload);
+
+// Update streaming model visibility when mode changes
+// Patch setMode to also update stream model visibility and trigger preload
+const _origSetMode = setMode;
+function setModePatched(newMode) {
+  _origSetMode(newMode);
+  const showStreamModel = (recognizeMode === 'stream' && (newMode === 'local' || newMode === 'hybrid'));
+  streamModelLabel.style.display = showStreamModel ? '' : 'none';
+  // Trigger preload if in stream mode + local/hybrid
+  if (recognizeMode === 'stream' && showStreamModel && !_modelPreloaded) {
+    preloadStreamingModel();
+  }
+}
+// Override the global setMode
+setMode = setModePatched;
+
+// ---- Streaming ASR ----
+async function startStreaming() {
+  // Validate: online mode must be DashScope
+  if (mode === 'online') {
+    const apiBase = el('apiBaseStt').value;
+    if (!apiBase || !apiBase.toLowerCase().includes('dashscope')) {
+      statusEl.textContent = '流式识别仅支持阿里云 DashScope，请切换录音模式或配置 DashScope API';
+      return;
+    }
+  }
+  if (mode === 'hybrid') {
+    // hybrid uses local streaming ASR, no extra check needed
+  }
+
+  isStreaming = true;
+  const sessionId = ++streamSessionId;  // guard against stale async callbacks
+  // streamingBaseText = text already in the textarea before this session starts.
+  // The backend sends cumulative text for THIS session only, so we prepend this.
+  streamingBaseText = transcriptEl.value || '';
+  resultCard.style.display = 'block';
+
+  // Immediately show recording state (red button + timer)
+  recordBtn.classList.add('recording');
+  timerEl.classList.add('recording');
+  recordBtn.disabled = false;
+  startTime = Date.now();
+  timerInterval = setInterval(() => {
+    timerEl.textContent = formatTime((Date.now() - startTime) / 1000);
+  }, 200);
+  statusEl.innerHTML = '<span class="spinner"></span>正在加载流式模型，请稍候...';
+
+  // Connect WebSocket and wait for 'ready' before starting audio capture
+  try {
+    await connectStreamingWebSocket(sessionId);
+  } catch (err) {
+    statusEl.textContent = 'WebSocket 连接失败: ' + err.message;
+    isStreaming = false;
+    clearInterval(timerInterval);
+    recordBtn.classList.remove('recording');
+    timerEl.classList.remove('recording');
+    return;
+  }
+
+  try {
+    await startStreamingCapture();
+    statusEl.textContent = '流式识别进行中，请说话...';
+    // Warm up the LLM availability cache so the first speech pause can
+    // trigger AI correction immediately (hybrid / online modes only).
+    if (mode === 'hybrid' || mode === 'online') probeSummaryApi();
+  } catch (err) {
+    statusEl.textContent = '麦克风访问失败: ' + err.message;
+    isStreaming = false;
+    clearInterval(timerInterval);
+    recordBtn.classList.remove('recording');
+    timerEl.classList.remove('recording');
+    cleanupStreamingResources();
+  }
+}
+
+function stopStreaming() {
+  isStreaming = false;
+
+  // Stop audio capture
+  cleanupStreamingResources();
+
+  // Cancel any pending pause-correction timer: the 'completed' handler may
+  // never run if the user starts the next segment right away.
+  clearTimeout(correctionTimer);
+
+  // Send stop command via WebSocket
+  if (wsConnection && wsConnection.readyState === WebSocket.OPEN) {
+    wsConnection.send(JSON.stringify({ action: 'stop' }));
+  }
+
+  clearInterval(timerInterval);
+  recordBtn.classList.remove('recording');
+  timerEl.classList.remove('recording');
+  // Re-enable IMMEDIATELY so the next segment can start right away. The
+  // finishing session keeps finalizing in the background; its stale messages
+  // are filtered out by streamSessionId guards.
+  recordBtn.disabled = false;
+  statusEl.textContent = '正在收尾处理，可再次点击麦克风继续识别...';
+}
+
+function cleanupStreamingResources() {
+  if (scriptProcessor) { try { scriptProcessor.disconnect(); } catch(e){} scriptProcessor = null; }
+  if (audioContext) { try { audioContext.close(); } catch(e){} audioContext = null; }
+  if (micStream) { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
+}
+
+async function startStreamingCapture() {
+  requireMediaDevices();
+  micStream = await navigator.mediaDevices.getUserMedia({
+    audio: { sampleRate: 16000, channelCount: 1, echoCancellation: true, noiseSuppression: true }
+  });
+
+  // Create AudioContext at 16kHz (may not be exact on all browsers)
+  audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+  const source = audioContext.createMediaStreamSource(micStream);
+
+  // ScriptProcessorNode: bufferSize=4096, 1 input channel, 1 output channel
+  // 4096 / 16000 = ~256ms per buffer
+  scriptProcessor = audioContext.createScriptProcessor(4096, 1, 1);
+
+  const targetSampleRate = 16000;
+  const actualSampleRate = audioContext.sampleRate;
+
+  scriptProcessor.onaudioprocess = (event) => {
+    if (!isStreaming || !wsConnection || wsConnection.readyState !== WebSocket.OPEN) return;
+
+    let float32 = event.inputBuffer.getChannelData(0);
+
+    // Resample if AudioContext is not exactly 16kHz
+    if (actualSampleRate !== targetSampleRate) {
+      const ratio = actualSampleRate / targetSampleRate;
+      const newLength = Math.round(float32.length / ratio);
+      const resampled = new Float32Array(newLength);
+      for (let i = 0; i < newLength; i++) {
+        const srcIdx = i * ratio;
+        const low = Math.floor(srcIdx);
+        const high = Math.min(low + 1, float32.length - 1);
+        const frac = srcIdx - low;
+        resampled[i] = float32[low] * (1 - frac) + float32[high] * frac;
+      }
+      float32 = resampled;
+    }
+
+    // Float32 [-1,1] -> Int16 PCM
+    const int16 = new Int16Array(float32.length);
+    for (let i = 0; i < float32.length; i++) {
+      const s = Math.max(-1, Math.min(1, float32[i]));
+      int16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+    }
+    wsConnection.send(int16.buffer);
+  };
+
+  source.connect(scriptProcessor);
+  scriptProcessor.connect(audioContext.destination);
+}
+
+function connectStreamingWebSocket(sessionId) {
+  return new Promise((resolve, reject) => {
+    const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+    let wsUrl;
+    let initPayload;
+
+    if (mode === 'online') {
+      // DashScope only
+      wsUrl = `${protocol}//${location.host}/ws/stream-online`;
+      initPayload = {
+        api_key: el('apiKeyStt').value,
+        model: el('sttModel').value || 'fun-asr-realtime',
+        language: el('langOnline').value,
+      };
+    } else {
+      // local / hybrid: use local streaming model
+      wsUrl = `${protocol}//${location.host}/ws/stream`;
+      initPayload = {
+        model: el('streamModel').value || 'paraformer-zh-streaming',
+        language: el('language').value,
+      };
+    }
+
+    const sock = new WebSocket(wsUrl);
+    sock.binaryType = 'arraybuffer';
+    wsConnection = sock;
+
+    // Timeout after 30s if never ready
+    const timeout = setTimeout(() => {
+      reject(new Error('连接超时'));
+    }, 30000);
+
+    sock.onopen = () => {
+      if (sessionId !== streamSessionId) return; // stale session
+      sock.send(JSON.stringify(initPayload));
+      statusEl.textContent = '正在加载模型，请稍候...';
+    };
+
+    sock.onmessage = (event) => {
+      // Ignore late messages from a previous (finishing) session: starting
+      // the next segment immediately must not corrupt the new session.
+      if (sessionId !== streamSessionId) return;
+      try {
+        const msg = JSON.parse(event.data);
+
+        // First 'ready' message: resolve the Promise so audio capture can start
+        if (msg.status === 'ready') {
+          clearTimeout(timeout);
+          // Capture base text NOW (right before audio starts), so we don't
+          // include anything typed during model loading.
+          streamingBaseText = transcriptEl.value || '';
+          rawSessionText = '';
+          polishedSnapshot = null;
+          polishedCovers = 0;
+          summaryApiFailNotified = false;
+          correctionSession = null;
+          summarizePromise = null;
+          statusEl.textContent = '流式识别已就绪，请说话...';
+          resolve();
+          return;
+        }
+
+        // Error during init: reject the Promise
+        if (msg.status === 'error') {
+          clearTimeout(timeout);
+          reject(new Error(msg.message || '模型加载失败'));
+          return;
+        }
+
+        // All other messages: handle as streaming results
+        handleStreamingMessage(msg, sessionId);
+      } catch (e) {
+        console.error('WS message parse error:', e);
+      }
+    };
+
+    sock.onerror = () => {
+      if (sessionId !== streamSessionId) return; // stale session
+      clearTimeout(timeout);
+      statusEl.textContent = 'WebSocket 连接错误';
+      if (isStreaming) stopStreamingCleanup();
+      reject(new Error('WebSocket 连接错误'));
+    };
+
+    sock.onclose = () => {
+      if (sessionId !== streamSessionId) return; // stale session
+      clearTimeout(timeout);
+      // If still streaming when connection closes unexpectedly
+      if (isStreaming) {
+        statusEl.textContent = 'WebSocket 连接中断';
+        stopStreamingCleanup();
+        // Keep whatever is in the textarea
+        recordBtn.disabled = false;
+      }
+    };
+  });
+}
+
+function stopStreamingCleanup() {
+  isStreaming = false;
+  clearTimeout(correctionTimer);
+  cleanupStreamingResources();
+  clearInterval(timerInterval);
+  recordBtn.classList.remove('recording');
+  timerEl.classList.remove('recording');
+  recordBtn.disabled = false;
+}
+
+function handleStreamingMessage(msg, sessionId) {
+  if (sessionId !== streamSessionId) return; // stale session: ignore
+
+  if (msg.status === 'error') {
+    statusEl.textContent = '识别错误: ' + (msg.message || '未知错误');
+    stopStreamingCleanup();
+    return;
+  }
+
+  if (msg.status === 'completed') {
+    // Cancel any pending real-time correction
+    clearTimeout(correctionTimer);
+    const wasPolished = polishedSnapshot !== null;
+    const rawText = wasPolished
+      ? polishedSnapshot + (msg.full_text || '').slice(polishedCovers)
+      : streamingBaseText + (msg.full_text || '');
+    // Raw tail that arrived after the last pause-correction; the
+    // end-of-session correction only needs to polish this remainder.
+    const tailDelta = wasPolished ? rawText.slice(polishedSnapshot.length) : '';
+    polishedSnapshot = null;
+    polishedCovers = 0;
+    rawSessionText = '';
+    transcriptEl.value = rawText;
+    currentTimestamp = msg.timestamp || null;
+    recordBtn.disabled = false;
+    summarizePromise = correctThenSummarize(
+      rawText, msg.timestamp || null, wasPolished, tailDelta, sessionId
+    );
+    return;
+  }
+
+  if (msg.status === 'refined') {
+    // Server-side 2-pass offline refinement finished after 'completed' was
+    // already delivered. Wait for any in-flight correction/summarization,
+    // then redo it with the refined text — but only if this is still the
+    // active session.
+    (async () => {
+      if (summarizePromise) { try { await summarizePromise; } catch (e) {} }
+      if (sessionId !== streamSessionId) return;
+      const refinedText = streamingBaseText + (msg.full_text || '');
+      transcriptEl.value = refinedText;
+      currentTimestamp = msg.timestamp || currentTimestamp;
+      summarizePromise = correctThenSummarize(
+        refinedText, currentTimestamp, false, '', sessionId
+      );
+    })();
+    return;
+  }
+
+  // Intermediate or final sentence result:
+  // Backend sends cumulative text for THIS session (all_text + current_sentence).
+  if (msg.text !== undefined) {
+    console.log('[Stream] cumulative=%c%s%c final=%s', 'color:lime', msg.text, 'color:inherit', msg.final);
+    rawSessionText = msg.text;
+    // If a pause-correction polished the text, keep the polished version as
+    // base and only append the raw delta produced after the correction.
+    transcriptEl.value = polishedSnapshot !== null
+      ? polishedSnapshot + rawSessionText.slice(polishedCovers)
+      : streamingBaseText + rawSessionText;
+    transcriptEl.scrollTop = transcriptEl.scrollHeight;
+
+    // Reset the pause timer: when the user pauses, AI correction fires.
+    scheduleCorrection();
+  }
+}
+
+function scheduleCorrection() {
+  const apiKey = el('apiKeySummary').value.trim();
+  if (!apiKey || (mode !== 'online' && mode !== 'hybrid')) return;
+  // LLM already known to be unavailable: don't keep hammering it.
+  if (summaryApiState === 'fail') return;
+
+  const sessionId = streamSessionId;
+
+  // Reset timer on every text update
+  clearTimeout(correctionTimer);
+  correctionTimer = setTimeout(async () => {
+    if (sessionId !== streamSessionId) return; // stale session
+    // Guard: don't fire if a correction is already in progress
+    if (correctionSession !== null) return;
+
+    // Guard: minimum cooldown between corrections
+    const now = Date.now();
+    if (now - lastCorrectionTime < 2000) return;
+
+    // Ensure the configured LLM is actually available before firing
+    // (requirement: correction only kicks in after the model is verified).
+    if (summaryApiState === 'unknown') {
+      statusEl.innerHTML = '<span class="spinner"></span>正在检测大模型可用性...';
+      const ok = await probeSummaryApi();
+      if (sessionId !== streamSessionId) return; // stale session
+      if (!ok) {
+        if (!summaryApiFailNotified) {
+          summaryApiFailNotified = true;
+          console.warn('Stream correction skipped: summary LLM unavailable');
+        }
+        if (isStreaming) {
+          statusEl.textContent = '流式识别进行中，请说话...（大模型纠错不可用，保留原始识别）';
+        }
+        return;
+      }
+      if (isStreaming) statusEl.textContent = '流式识别进行中，请说话...';
+    }
+
+    // Snapshot positions BEFORE the await: text arriving while the API call
+    // is in flight must not be treated as already polished (that would drop
+    // characters).
+    const coverLen = rawSessionText.length;
+    const delta = rawSessionText.slice(polishedCovers);
+    if (delta.length < 8) return;
+
+    correctionSession = sessionId;
+    statusEl.innerHTML = '<span class="spinner"></span>AI 正在结合语境润色纠错...';
+
+    const baseSoFar = polishedSnapshot !== null ? polishedSnapshot : streamingBaseText;
+    try {
+      const resp = await fetch('/api/correct', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: delta,
+          context: baseSoFar.slice(-500),
+          context_prompt: getContextPrompt(),
+          api_key: apiKey,
+          api_base: el('apiBaseSummary').value,
+          model: el('summaryModel').value,
+        }),
+      });
+      const data = await resp.json();
+      if (sessionId !== streamSessionId) return; // stale: never touch UI/state
+      if (data.error) {
+        // LLM call failed: stop pause-corrections for the rest of the session.
+        summaryApiState = 'fail';
+        console.warn('Real-time correction failed:', data.error);
+        if (isStreaming) {
+          statusEl.textContent = '流式识别进行中，请说话...（大模型纠错失败，已暂停实时纠错）';
+        }
+      } else if (data.corrected && data.corrected.trim()) {
+        // Append the polished delta to the previous polished base; old text
+        // is never re-sent, so it can't be rewritten or lost, and the call
+        // stays fast no matter how long the session is.
+        polishedSnapshot = baseSoFar + data.corrected;
+        polishedCovers = coverLen;
+        transcriptEl.value = polishedSnapshot + rawSessionText.slice(polishedCovers);
+        transcriptEl.scrollTop = transcriptEl.scrollHeight;
+        lastCorrectedLength = streamingBaseText.length + coverLen;
+        lastCorrectionTime = Date.now();
+      }
+    } catch (err) {
+      console.warn('Real-time correction failed:', err);
+      summaryApiState = 'fail';
+      if (sessionId === streamSessionId && isStreaming) {
+        statusEl.textContent = '流式识别进行中，请说话...（大模型纠错失败，已暂停实时纠错）';
+      }
+      if (sessionId !== streamSessionId) return;
+    } finally {
+      // Only clear the in-flight marker if it is ours (a newer session may
+      // have started its own correction meanwhile).
+      if (correctionSession === sessionId) correctionSession = null;
+    }
+
+    if (isStreaming && summaryApiState !== 'fail') {
+      statusEl.textContent = '流式识别进行中，请说话...';
+    }
+  }, 1500);
+}
+
+async function correctThenSummarize(rawText, timestamp, polished = false, tailDelta = '', sessionId) {
+  if (sessionId !== streamSessionId) return; // stale session: skip entirely
+  if (!rawText.trim()) {
+    statusEl.textContent = '未识别到语音内容';
+    return;
+  }
+
+  // End-of-session AI correction. When pause-correction already polished the
+  // bulk of the text, only the raw tail produced afterwards needs polishing.
+  const apiKey = el('apiKeySummary').value.trim();
+  const needsCorrection = polished ? Boolean(tailDelta.trim()) : true;
+  if (needsCorrection && apiKey && (mode === 'online' || mode === 'hybrid')) {
+    // Cancel any pending real-time correction (stop was pressed)
+    clearTimeout(correctionTimer);
+    if (correctionSession === sessionId) correctionSession = null;
+
+    const textToCorrect = polished ? tailDelta : rawText;
+    const polishedBase = polished ? rawText.slice(0, rawText.length - tailDelta.length) : '';
+
+    statusEl.innerHTML = '<span class="spinner"></span>正在进行 AI 纠错润色...';
+    try {
+      const resp = await fetch('/api/correct', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: textToCorrect,
+          context: polished ? polishedBase.slice(-500) : undefined,
+          context_prompt: getContextPrompt(),
+          api_key: apiKey,
+          api_base: el('apiBaseSummary').value,
+          model: el('summaryModel').value,
+        }),
+      });
+      const data = await resp.json();
+      if (sessionId !== streamSessionId) return; // stale: session switched mid-call
+      if (data.corrected) {
+        transcriptEl.value = polished ? polishedBase + data.corrected : data.corrected;
+        transcriptEl.scrollTop = transcriptEl.scrollHeight;
+      }
+    } catch (err) {
+      console.warn('AI correction failed, using raw text:', err);
+    }
+  }
+
+  if (sessionId !== streamSessionId) return; // stale
+
+  // Proceed to summarization with corrected (or raw) text
+  statusEl.innerHTML = '<span class="spinner"></span>正在生成总结...';
+  await autoSummarizeAfterStreaming(transcriptEl.value, sessionId, timestamp);
+}
+
+// Turn raw API error text into an actionable message.
+function friendlyApiError(err) {
+  const s = String(err || '');
+  if (/401|Unauthorized|Authentication/i.test(s)) {
+    return 'API Key 无效或已过期（401）。请检查「文本总结」处的 Key，可先点“测试连接”验证。';
+  }
+  if (/404|not\s*found/i.test(s)) {
+    return '模型不存在（404）。请把「文本总结」的模型改为有效名称，如 deepseek-chat。';
+  }
+  if (/402|insufficient|balance|余额/i.test(s)) {
+    return '账户余额不足或额度用尽（402），请到服务商后台充值。';
+  }
+  if (/timeout|timed out|超时/i.test(s)) {
+    return '请求超时，请稍后重试或检查网络。';
+  }
+  return s;
+}
+
+async function autoSummarizeAfterStreaming(text, sessionId, saveTs) {
+  if (sessionId !== streamSessionId) return; // stale session
+  if (!text.trim()) {
+    statusEl.textContent = '未识别到语音内容';
+    recordBtn.disabled = false;
+    return;
+  }
+  if (text.length > 6000) {
+    statusEl.innerHTML = '<span class="spinner"></span>文本较长，正在分段总结，约需 1~2 分钟...';
+  }
+
+  const payload = {
+    text: text,
+    mode: mode,
+    summary_type: getSummaryType(),
+    context: getContextPrompt(),
+  };
+  if (mode === 'online' || mode === 'hybrid') {
+    payload.api_key_summary = el('apiKeySummary').value;
+    payload.api_base_summary = el('apiBaseSummary').value;
+    payload.summary_model = el('summaryModel').value;
+  }
+
+  try {
+    const resp = await fetch('/api/summarize', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await resp.json();
+    if (sessionId !== streamSessionId) {
+      // Session switched while summarizing: still persist the old summary
+      // server-side so it shows up in history; skip all UI updates.
+      if (saveTs && data.summary) {
+        fetch('/api/save-summary', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ timestamp: saveTs, summary: data.summary }),
+        }).catch(() => {});
+      }
+      return;
+    }
+    if (data.error) {
+      statusEl.textContent = '总结失败: ' + friendlyApiError(data.error);
+    } else {
+      setSummaryContent(data.summary || '（无法生成总结）');
+      updateSummaryTypeLabel(data.summary_type || getSummaryType());
+      // Save summary to server if we have a timestamp
+      if (saveTs || currentTimestamp) {
+        await fetch('/api/save-summary', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            timestamp: saveTs || currentTimestamp,
+            summary: data.summary || '',
+          }),
+        });
+      }
+      statusEl.textContent = '流式识别 + 总结完成！';
+      loadHistory();
+    }
+  } catch (err) {
+    if (sessionId === streamSessionId) {
+      statusEl.textContent = '总结请求失败: ' + err.message;
+    }
+  }
+}
 
 // ---- File upload ----
 const uploadArea = el('uploadArea');
@@ -1117,6 +2473,7 @@ async function transcribeAudio(blob) {
 
   // Summary params
   formData.append('summary_type', getSummaryType());
+  formData.append('context', getContextPrompt());
   if (mode === 'online' || mode === 'hybrid') {
     formData.append('api_key_summary', el('apiKeySummary').value);
     formData.append('api_base_summary', el('apiBaseSummary').value);
@@ -1139,12 +2496,41 @@ async function transcribeAudio(blob) {
     } else if (data.stt_engine === 'online') {
       statusMsg += ' (在线识别)';
     }
-    transcriptEl.value = data.transcript || '';
-    if (!data.transcript) transcriptEl.placeholder = '（未识别到语音内容）';
-    setSummaryContent(data.summary || '（无法生成总结）');
+
+    const rawTranscript = data.transcript || '';
+    transcriptEl.value = rawTranscript;
+    if (!rawTranscript) transcriptEl.placeholder = '（未识别到语音内容）';
     currentTimestamp = data.timestamp;
-    updateSummaryTypeLabel(data.summary_type || getSummaryType());
     resultCard.style.display = 'block';
+
+    // Try AI correction if API key is available
+    const apiKey = el('apiKeySummary').value.trim();
+    if (rawTranscript && apiKey && (mode === 'online' || mode === 'hybrid')) {
+      statusEl.innerHTML = '<span class="spinner"></span>正在进行 AI 纠错润色...';
+      try {
+        const corrResp = await fetch('/api/correct', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            text: rawTranscript,
+            context_prompt: getContextPrompt(),
+            api_key: apiKey,
+            api_base: el('apiBaseSummary').value,
+            model: el('summaryModel').value,
+          }),
+        });
+        const corrData = await corrResp.json();
+        if (corrData.corrected) {
+          transcriptEl.value = corrData.corrected;
+          statusMsg += ' (已纠错)';
+        }
+      } catch (err) {
+        console.warn('AI correction failed, using raw text:', err);
+      }
+    }
+
+    setSummaryContent(data.summary || '（无法生成总结）');
+    updateSummaryTypeLabel(data.summary_type || getSummaryType());
     statusEl.textContent = statusMsg;
     recordBtn.disabled = false;
     fileInput.value = '';
@@ -1216,7 +2602,8 @@ el('summaryTestBtn').addEventListener('click', () => testConnection('summary'));
 
 // ---- Copy buttons ----
 el('copySummaryBtn').addEventListener('click', () => {
-  const text = previewVisible ? el('summaryPreview').textContent : el('summaryText').value;
+  // Always copy the raw markdown content from textarea
+  const text = el('summaryText').value;
   if (!text.trim()) return;
   navigator.clipboard.writeText(text).then(() => {
     el('copySummaryBtn').textContent = '已复制!';
@@ -1240,15 +2627,18 @@ el('previewToggle').addEventListener('click', () => {
   const ta = el('summaryText');
   const preview = el('summaryPreview');
   const toggle = el('previewToggle');
+  const saveBtn = el('saveSummaryBtn');
   if (previewVisible) {
     preview.innerHTML = renderMarkdown(ta.value);
     ta.style.display = 'none';
     preview.style.display = 'block';
     toggle.textContent = '编辑';
+    saveBtn.style.display = 'none';
   } else {
     preview.style.display = 'none';
     ta.style.display = 'block';
     toggle.textContent = '预览';
+    saveBtn.style.display = '';
   }
 });
 
@@ -1308,6 +2698,7 @@ el('reSummarizeBtn').addEventListener('click', async () => {
     text: text,
     mode: mode,
     summary_type: getSummaryType(),
+    context: getContextPrompt(),
   };
   if (mode === 'online' || mode === 'hybrid') {
     payload.api_key_summary = el('apiKeySummary').value;
@@ -1323,7 +2714,7 @@ el('reSummarizeBtn').addEventListener('click', async () => {
     });
     const data = await resp.json();
     if (data.error) {
-      statusEl.textContent = '总结失败: ' + data.error;
+      statusEl.textContent = '总结失败: ' + friendlyApiError(data.error);
     } else {
       setSummaryContent(data.summary || '（无法生成总结）');
       updateSummaryTypeLabel(data.summary_type || getSummaryType());
@@ -1427,6 +2818,25 @@ function setSummaryContent(text) {
   }
 }
 
+// ---- Download summary as Markdown ----
+el('downloadSummaryBtn').addEventListener('click', () => {
+  if (!currentTimestamp) {
+    // No saved file yet, download from current content as blob
+    const text = el('summaryText').value;
+    if (!text.trim()) return;
+    const blob = new Blob([text], { type: 'text/markdown;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'summary.md';
+    a.click();
+    URL.revokeObjectURL(url);
+    return;
+  }
+  // Download from server
+  window.open(`/api/download-summary/${encodeURIComponent(currentTimestamp)}`, '_blank');
+});
+
 // ---- Clear all ----
 el('clearAllBtn').addEventListener('click', async () => {
   if (!confirm('确认删除全部历史记录？此操作不可撤销。')) return;
@@ -1434,19 +2844,61 @@ el('clearAllBtn').addEventListener('click', async () => {
   transcriptEl.value = '';
   summaryEl.value = '';
   summaryPreview.innerHTML = '';
-  summaryPreview.style.display = 'none';
-  summaryEl.style.display = 'block';
-  previewVisible = false;
-  el('previewToggle').textContent = '预览';
+  summaryPreview.style.display = 'block';
+  summaryEl.style.display = 'none';
+  previewVisible = true;
+  el('previewToggle').textContent = '编辑';
+  el('saveSummaryBtn').style.display = 'none';
   currentTimestamp = null;
   resultCard.style.display = 'none';
   loadHistory();
 });
 
+// Populate model suggestion datalists with locally cached ModelScope models
+async function refreshLocalModels() {
+  try {
+    const resp = await fetch('/api/local-models');
+    if (!resp.ok) return;
+    const data = await resp.json();
+    const streamList = el('streamModelSuggestions');
+    const offlineList = el('modelSuggestions');
+    (data.streaming || []).forEach(m => {
+      const opt = document.createElement('option');
+      opt.value = m.path;
+      streamList.appendChild(opt);
+    });
+    // Auto-select the first local streaming model when the input still holds
+    // the (poor-quality / not-downloaded) default paraformer-zh-streaming.
+    if ((data.streaming || []).length &&
+        el('streamModel').value.trim() === 'paraformer-zh-streaming') {
+      el('streamModel').value = data.streaming[0].path;
+      saveSettings();
+    }
+    // Migrate legacy Whisper model names saved in localStorage.
+    const legacyWhisper = ['tiny','tiny.en','base','base.en','small','small.en',
+      'medium','medium.en','large','large-v1','large-v2','large-v3','turbo'];
+    if (legacyWhisper.includes(el('model').value.trim())) {
+      el('model').value = (data.offline || []).length ? data.offline[0].path : 'iic/SenseVoiceSmall';
+      saveSettings();
+    }
+    (data.offline || []).forEach(m => {
+      if (![...offlineList.options].some(o => o.value === m.path)) {
+        const opt = document.createElement('option');
+        opt.value = m.path;
+        offlineList.appendChild(opt);
+      }
+    });
+  } catch (e) { /* server not ready yet */ }
+}
+
 // ---- Init ----
+let _savedTheme = 'catppuccin';
+try { _savedTheme = localStorage.getItem(THEME_KEY) || 'catppuccin'; } catch (e) {}
+applyTheme(_savedTheme);
 loadSettings();
 setMode(mode);
 loadHistory();
+refreshLocalModels();
 </script>
 </body>
 </html>

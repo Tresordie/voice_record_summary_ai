@@ -1,8 +1,12 @@
-flask>=3.0
-openai-whisper
+fastapi>=0.110
+uvicorn[standard]>=0.29
+python-multipart>=0.0.9
+jinja2
 funasr>=1.0
-openai>=1.0
+requests
 dashscope>=1.20
+cryptography
 jieba
 numpy
 torch
+torchaudio
